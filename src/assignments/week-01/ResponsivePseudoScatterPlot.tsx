@@ -37,9 +37,9 @@ export function ResponsivePseudoScatterPlot() {
       .selectAll('circle')
       .data(data)
       .join('circle')
-      .attr('cx', (d: DataPoint) => xScale(d.x))
-      .attr('cy', (d: DataPoint) => yScale(d.y))
-      .attr('r', RADIUS);
+      .attr('cx', (d: DataPoint) => xScale(d.y))
+      .attr('cy', (d: DataPoint) => yScale(d.x))
+      .attr('r', (d: DataPoint) => d.x + d.y);
   }, [dimensions]);
 
   return (
