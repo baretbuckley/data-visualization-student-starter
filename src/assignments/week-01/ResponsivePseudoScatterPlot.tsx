@@ -19,7 +19,7 @@ const data: DataPoint[] = [
 
 const ORIGINAL_WIDTH = 960;
 const ORIGINAL_HEIGHT = 500;
-const RADIUS = 34;
+// const RADIUS = 34;
 
 export function ResponsivePseudoScatterPlot() {
   const svgRef = useRef<SVGSVGElement>(null);
