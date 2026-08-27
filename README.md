@@ -9,7 +9,7 @@ How to use, for the first assignment:
  * Deploy your project using GitHub Pages (you may need to change `base` in `vite.config.ts`, depending on your repository name)
  * Submit the link to your repo and hosted site
 
-How to use, for subsequent assignments:
+How to use, for subsequent assignments: 
 
  * Add a new directory `src/assignments`, potentially by copying a previous assignment as a starter, or copying files in from `src/examples` in [constructing-visualizations](https://github.com/curran/constructing-visualizations)
  * Update the index at `src/assignments/index.ts` to add the new listing
