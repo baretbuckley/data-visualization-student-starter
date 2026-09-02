@@ -161,6 +161,7 @@ export function LoadingAndSummarizingData() {
           <td>Francisco Chang</td>
           <td>Mexico</td>
         </tr>
+        border: 1px solid black;
       </table>
     </div>
 
