@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 // import { select } from 'd3-selection';
 import { csvParse } from 'd3-dsv';
 
@@ -99,7 +99,7 @@ export function LoadingAndSummarizingData() {
   // const { ref: divRef, dimensions } = useDimensions();
   const [data, setData] = useState<Row[]>([]);
   const [CMU, setCMU] = useState<Row[]>([]);
-  const [uniStats, setUniStats] = useState<UniStats[]>([]);
+  // const [uniStats, setUniStats] = useState<UniStats[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,15 +126,7 @@ export function LoadingAndSummarizingData() {
         var unis = Array.from(new Set(data.map(item => item.university)).add("Total"));
         console.log("unis", unis);
 
-        setUniStats(
-          unis.map((uni) => {
-            if (uni === "Total") {
-              return GetUniStats(uni, data);
-            }
-            return GetUniStats(uni, data.filter((row) => row.university === uni));
-          })
-        )
-        console.log("stats:", uniStats);
+        
 
         setCMU((data || []).filter((row) => {row.university == "Carnegie Mellon University"}));
         console.log(data?.length);
@@ -148,18 +140,30 @@ export function LoadingAndSummarizingData() {
     };
   }, []);
 
-  // const summary = useMemo<Summary | null>(() => {
-  //   if (!data) return null;
-  //   console.log(JSON.stringify(data, null, 2));
-  //   return {
-  //     rows: data.length,
-  //     columns: Object.keys(data[0]).length,
-  //   };
-  // }, [data]);
+  const stats = useMemo<UniStats[]>(() => {
+    if (data.length === 0) return [];
+    console.log(JSON.stringify(data, null, 2));
+    const unis = Array.from(new Set(data.map(item => item.university)).add("Total"));
+    return unis.map((uni) => {
+      if (uni === "Total") {
+        return GetUniStats(uni, data);
+      }
+      return GetUniStats(uni, data.filter((row) => row.university === uni));
+    })
+  }, [data]);
 
   return (
+    
     //  ref={divRef}
     <div className="relative w-full h-full">
+      
+      {/* <svg
+        ref={svgRef}
+        className="absolute inset-0 w-full h-full"
+        role="img"
+        aria-label="Summary of the Palmer Penguins dataset"
+      ></svg> */}
+
       <h1 className="text-3xl font-bold mb-2">
         College Student's Average Sleep
       </h1>
@@ -171,7 +175,7 @@ export function LoadingAndSummarizingData() {
         Average Student's Sleep
       </h2>
       <p className="mb-6">
-        <strong>All Students</strong> ( {data?.length} ): {avg_sleep(data || [])}
+        <strong>All Students</strong> ( {stats.length} ): {avg_sleep(data || [])}
         <strong>Carnegie Mellon</strong> ( {CMU?.length} ): {avg_sleep(CMU)}
       </p>
 
