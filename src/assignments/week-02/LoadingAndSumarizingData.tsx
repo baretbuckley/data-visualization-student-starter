@@ -96,7 +96,7 @@ const DATA_URL = `${import.meta.env.BASE_URL}college_sleep_and_gpa.csv`;
 
 export function LoadingAndSummarizingData() {
   const svgRef = useRef<SVGSVGElement>(null);
-  const { ref: divRef, dimensions } = useDimensions();
+  // const { ref: divRef, dimensions } = useDimensions();
   const [data, setData] = useState<Row[]>([]);
   const [CMU, setCMU] = useState<Row[]>([]);
   const [uniStats, setUniStats] = useState<UniStats[]>([]);
@@ -155,7 +155,8 @@ export function LoadingAndSummarizingData() {
   // }, [data]);
 
   return (
-    <div ref={divRef} className="relative w-full h-full">
+    //  ref={divRef}
+    <div className="relative w-full h-full">
       <h1 className="text-3xl font-bold mb-2">
         College Student's Average Sleep
       </h1>
