@@ -40,6 +40,14 @@ interface Row {
   gpa_change: number;
 }
 
+interface UniStats {
+  university: string;
+  student_avg: number;
+  female_avg: number;
+  male_avg: number;
+  first_gen_avg: number;
+}
+
 function avg_sleep(rows: Row[]) {
   if (!rows || rows.length === 0) return 0;
   const sum = rows.map((row) => row.avg_sleep_hours).reduce((acc, curr) => acc + curr, 0);
@@ -55,8 +63,9 @@ const LINE_HEIGHT = FONT_SIZE * 1.2;
 export function LoadingAndSummarizingData() {
   const svgRef = useRef<SVGSVGElement>(null);
   const { ref: divRef, dimensions } = useDimensions();
-  const [data, setData] = useState<Row[] | null>(null);
+  const [data, setData] = useState<Row[]>([]);
   const [CMU, setCMU] = useState<Row[]>([]);
+  const [universities, setUniversities] = useState<string[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,8 +86,9 @@ export function LoadingAndSummarizingData() {
             gpa_change: row.gpa_change,
           })),
         );
+        const unis = Array.from(new Set(data.map(item => item.university)));
+        console.log(unis);
         setCMU((data || []).filter((row) => {row.university == "Carnegie Mellon University"}));
-        console.log(CMU);
         console.log(data?.length);
       })
       .catch((error) => {
