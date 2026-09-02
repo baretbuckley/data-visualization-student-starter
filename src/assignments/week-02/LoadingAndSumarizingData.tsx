@@ -77,7 +77,8 @@ export function LoadingAndSummarizingData() {
             gpa_change: row.gpa_change,
           })),
         );
-        setCMU((data || []).filter((row) => {row.university == "Carnegie Mellon University"}))
+        setCMU((data || []).filter((row) => {row.university == "Carnegie Mellon University"}));
+        console.log(CMU);
         console.log(data?.length);
       })
       .catch((error) => {
@@ -124,12 +125,6 @@ export function LoadingAndSummarizingData() {
 
   return (
     <div ref={divRef} className="relative w-full h-full">
-      {/* <svg
-        ref={svgRef}
-        className="absolute inset-0 w-full h-full"
-        role="img"
-        aria-label="Summary of the Palmer Penguins dataset"
-      ></svg> */}
       <h1 className="text-3xl font-bold mb-2">
         College Student's Average Sleep
       </h1>
