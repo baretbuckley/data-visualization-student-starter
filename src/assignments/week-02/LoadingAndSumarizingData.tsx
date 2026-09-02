@@ -120,6 +120,7 @@ export function LoadingAndSummarizingData() {
             gpa_change: row.gpa_change,
           })),
         );
+        console.log(data);
         console.log(data.map(item => item.university));
         console.log(new Set(data.map(item => item.university)).add("Total"));
         var unis = Array.from(new Set(data.map(item => item.university)).add("Total"));
