@@ -126,8 +126,44 @@ export function LoadingAndSummarizingData() {
         aria-label="Summary of the Palmer Penguins dataset"
       ></svg>
       <h1 className="text-3xl font-bold mb-2">
-        This is some more text
+        College Student's Average Sleep
       </h1>
+      <p className="mb-6">
+          <strong>Rows:</strong> {data?.length}
+      </p>
     </div>
+
+
+    // <div className="overflow-x-auto">
+    //     <table className="border-collapse border">
+    //       <thead>
+    //         <tr>
+    //           {columns.map((column) => (
+    //             <th
+    //               key={column}
+    //               className="border px-3 py-2"
+    //             >
+    //               {column}
+    //             </th>
+    //           ))}
+    //         </tr>
+    //       </thead>
+
+    //       <tbody>
+    //         {data.slice(0, 10).map((row, index) => (
+    //           <tr key={index}>
+    //             {columns.map((column) => (
+    //               <td
+    //                 key={column}
+    //                 className="border px-3 py-2"
+    //               >
+    //                 {row[column]}
+    //               </td>
+    //             ))}
+    //           </tr>
+    //         ))}
+    //       </tbody>
+    //     </table>
+    //   </div>
   );
 }
