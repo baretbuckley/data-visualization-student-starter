@@ -30,6 +30,17 @@ interface Summary {
   columns: number;
 }
 
+interface PenguinRawRow {
+  species?: string;
+  island?: string;
+  bill_length_mm?: string;
+  bill_depth_mm?: string;
+  flipper_length_mm?: string;
+  body_mass_g?: string;
+  sex?: string;
+  year?: string;
+}
+
 interface PenguinRow {
   species: string;
   island: string;
@@ -60,7 +71,7 @@ export function LoadingAndSummarizingData() {
         if (cancelled) return;
         const parsed = csvParse(text);
         setData(
-          parsed.map((row) => ({
+          parsed.map((row: PenguinRow) => ({
             species: row.species,
             island: row.island,
             bill_length_mm: +row.bill_length_mm,
