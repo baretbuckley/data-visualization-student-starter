@@ -60,7 +60,7 @@ export function LoadingAndSummarizingData() {
         if (cancelled) return;
         const parsed = csvParse(text);
         setData(
-          parsed.map((row: PenguinRow) => ({
+          parsed.map((row: any) => ({
             species: row.species,
             island: row.island,
             bill_length_mm: +row.bill_length_mm,
