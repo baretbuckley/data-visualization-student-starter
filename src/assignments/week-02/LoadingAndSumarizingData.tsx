@@ -40,6 +40,12 @@ interface Row {
   gpa_change: number;
 }
 
+function avg_sleep(rows: Row[]) {
+  if (!rows || rows.length === 0) return 0;
+  const sum = rows.map((row) => row.avg_sleep_hours).reduce((acc, curr) => acc + curr, 0);
+  return sum / rows.length;
+}
+
 // const DATA_URL = `${import.meta.env.BASE_URL}datasets/college_sleep_and_gpa.csv`;
 const DATA_URL = `${import.meta.env.BASE_URL}college_sleep_and_gpa.csv`;
 
@@ -129,8 +135,15 @@ export function LoadingAndSummarizingData() {
         College Student's Average Sleep
       </h1>
       <p className="mb-6">
-          <strong>Rows:</strong> {data?.length}{' '}
-          <strong>Columns:</strong> {Object.keys(data?.[0] || {}).length}
+        <strong>Rows:</strong> {data?.length}{' '}
+        <strong>Columns:</strong> {Object.keys(data?.[0] || {}).length}
+      </p>
+      <h2 className="text-3xl font-bold mb-2">
+        Average Student's Sleep
+      </h2>
+      <p className="mb-6">
+        <strong>All Students</strong> ( {data?.length} ): {avg_sleep(data || [])}
+        {/* All Students ( {data?.length} ): {data?.filter((row: Row, i: number, _) => {row.university}).length} */}
       </p>
     </div>
 
