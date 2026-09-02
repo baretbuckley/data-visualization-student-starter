@@ -58,8 +58,10 @@ export function LoadingAndSummarizingData() {
       .then((response) => response.text())
       .then((text) => {
         if (cancelled) return;
-        const parsed = csvParse(text);
         console.log(text);
+
+        const parsed = csvParse(text);
+        console.log(parsed);
         setData(
           parsed.map((row: any) => ({
             university: row.university,
