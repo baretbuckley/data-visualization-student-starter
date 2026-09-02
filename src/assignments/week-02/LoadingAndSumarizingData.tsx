@@ -41,7 +41,7 @@ interface PenguinRow {
   year: string;
 }
 
-const DATA_URL = `${import.meta.env.BASE_URL}datasets/palmer-penguins/penguins.csv`;
+const DATA_URL = `${import.meta.env.BASE_URL}datasets/penguins.csv`;
 
 const FONT_SIZE = 28;
 const LINE_HEIGHT = FONT_SIZE * 1.2;
