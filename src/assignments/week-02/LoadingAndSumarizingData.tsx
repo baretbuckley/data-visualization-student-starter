@@ -60,15 +60,16 @@ export function LoadingAndSummarizingData() {
         const parsed = csvParse(text);
         setData(
           parsed.map((row: any) => ({
-              university: row.university,
-              gender: row.gender,
-              first_generation: row.first_generation,
-              underrepresented: row.underrepresented,
-              avg_sleep_hours: row.avg_sleep_hours,
-              term_gpa: row.term_gpa,
-              gpa_change: row.gpa_change,
+            university: row.university,
+            gender: row.gender,
+            first_generation: row.first_generation,
+            underrepresented: row.underrepresented,
+            avg_sleep_hours: row.avg_sleep_hours,
+            term_gpa: row.term_gpa,
+            gpa_change: row.gpa_change,
           })),
         );
+        console.log(data?.length);
       })
       .catch((error) => {
         console.error('Failed to load data', error);
