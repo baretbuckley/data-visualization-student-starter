@@ -40,7 +40,8 @@ interface Row {
   gpa_change: number;
 }
 
-const DATA_URL = `${import.meta.env.BASE_URL}datasets/college_sleep_and_gpa.csv`;
+// const DATA_URL = `${import.meta.env.BASE_URL}datasets/college_sleep_and_gpa.csv`;
+const DATA_URL = `${import.meta.env.BASE_URL}datasets/penguins.csv`;
 
 const FONT_SIZE = 28;
 const LINE_HEIGHT = FONT_SIZE * 1.2;
