@@ -30,17 +30,6 @@ interface Summary {
   columns: number;
 }
 
-interface PenguinRawRow {
-  species?: string;
-  island?: string;
-  bill_length_mm?: string;
-  bill_depth_mm?: string;
-  flipper_length_mm?: string;
-  body_mass_g?: string;
-  sex?: string;
-  year?: string;
-}
-
 interface PenguinRow {
   species: string;
   island: string;
