@@ -56,6 +56,7 @@ export function LoadingAndSummarizingData() {
   const svgRef = useRef<SVGSVGElement>(null);
   const { ref: divRef, dimensions } = useDimensions();
   const [data, setData] = useState<Row[] | null>(null);
+  const [CMU, setCMU] = useState<Row[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,10 +65,7 @@ export function LoadingAndSummarizingData() {
       .then((response) => response.text())
       .then((text) => {
         if (cancelled) return;
-        console.log(text);
-
         const parsed = csvParse(text);
-        console.log(parsed);
         setData(
           parsed.map((row: any) => ({
             university: row.university,
@@ -79,6 +77,7 @@ export function LoadingAndSummarizingData() {
             gpa_change: row.gpa_change,
           })),
         );
+        setCMU((data || []).filter((row) => {row.university == "Carnegie Mellon University"}))
         console.log(data?.length);
       })
       .catch((error) => {
@@ -143,7 +142,7 @@ export function LoadingAndSummarizingData() {
       </h2>
       <p className="mb-6">
         <strong>All Students</strong> ( {data?.length} ): {avg_sleep(data || [])}
-        {/* All Students ( {data?.length} ): {data?.filter((row: Row, i: number, _) => {row.university}).length} */}
+        <strong>Carnegie Mellon</strong> ( {CMU?.length} ): {avg_sleep(CMU || [])}
       </p>
     </div>
 
