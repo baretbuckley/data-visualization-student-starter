@@ -30,18 +30,17 @@ interface Summary {
   columns: number;
 }
 
-interface PenguinRow {
-  species: string;
-  island: string;
-  bill_length_mm: number;
-  bill_depth_mm: number;
-  flipper_length_mm: number;
-  body_mass_g: number;
-  sex: string;
-  year: string;
+interface Row {
+  university: string;
+  gender: string;
+  first_generation: boolean;
+  underrepresented: boolean;
+  avg_sleep_hours: number;
+  term_gpa: number;
+  gpa_change: number;
 }
 
-const DATA_URL = `${import.meta.env.BASE_URL}datasets/penguins.csv`;
+const DATA_URL = `${import.meta.env.BASE_URL}datasets/college_sleep_and_gpa.csv`;
 
 const FONT_SIZE = 28;
 const LINE_HEIGHT = FONT_SIZE * 1.2;
@@ -49,7 +48,7 @@ const LINE_HEIGHT = FONT_SIZE * 1.2;
 export function LoadingAndSummarizingData() {
   const svgRef = useRef<SVGSVGElement>(null);
   const { ref: divRef, dimensions } = useDimensions();
-  const [data, setData] = useState<PenguinRow[] | null>(null);
+  const [data, setData] = useState<Row[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,14 +60,13 @@ export function LoadingAndSummarizingData() {
         const parsed = csvParse(text);
         setData(
           parsed.map((row: any) => ({
-            species: row.species,
-            island: row.island,
-            bill_length_mm: +row.bill_length_mm,
-            bill_depth_mm: +row.bill_depth_mm,
-            flipper_length_mm: +row.flipper_length_mm,
-            body_mass_g: +row.body_mass_g,
-            sex: row.sex,
-            year: row.year,
+              university: row.university,
+              gender: row.gender,
+              first_generation: row.first_generation,
+              underrepresented: row.underrepresented,
+              avg_sleep_hours: row.avg_sleep_hours,
+              term_gpa: row.term_gpa,
+              gpa_change: row.gpa_change,
           })),
         );
       })
