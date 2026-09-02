@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { select } from 'd3-selection';
+import { useEffect, useRef, useState } from 'react';
+// import { select } from 'd3-selection';
 import { csvParse } from 'd3-dsv';
 
 
@@ -25,10 +25,10 @@ export function useDimensions() {
   return { ref, dimensions };
 }
 
-interface Summary {
-  rows: number;
-  columns: number;
-}
+// interface Summary {
+//   rows: number;
+//   columns: number;
+// }
 
 interface Row {
   university: string;
@@ -89,8 +89,8 @@ function GetUniStats(uni_name: string, students: Row[]): UniStats {
 // const DATA_URL = `${import.meta.env.BASE_URL}datasets/college_sleep_and_gpa.csv`;
 const DATA_URL = `${import.meta.env.BASE_URL}college_sleep_and_gpa.csv`;
 
-const FONT_SIZE = 28;
-const LINE_HEIGHT = FONT_SIZE * 1.2;
+// const FONT_SIZE = 28;
+// const LINE_HEIGHT = FONT_SIZE * 1.2;
 
 
 
