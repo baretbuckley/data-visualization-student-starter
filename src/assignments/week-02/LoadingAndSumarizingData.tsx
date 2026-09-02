@@ -124,12 +124,12 @@ export function LoadingAndSummarizingData() {
 
   return (
     <div ref={divRef} className="relative w-full h-full">
-      <svg
+      {/* <svg
         ref={svgRef}
         className="absolute inset-0 w-full h-full"
         role="img"
         aria-label="Summary of the Palmer Penguins dataset"
-      ></svg>
+      ></svg> */}
       <h1 className="text-3xl font-bold mb-2">
         College Student's Average Sleep
       </h1>
