@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import { ResponsivePseudoScatterPlot } from './week-01/ResponsivePseudoScatterPlot';
 
+
 export interface Assignment {
   id: string;
   name: string;
@@ -11,6 +12,11 @@ export const assignments: Assignment[] = [
   {
     id: '1',
     name: 'Week 1',
+    component: ResponsivePseudoScatterPlot,
+  },
+  {
+    id: '2',
+    name: 'Week 2',
     component: ResponsivePseudoScatterPlot,
   },
 ];
