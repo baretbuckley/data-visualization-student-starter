@@ -145,7 +145,7 @@ export function LoadingAndSummarizingData() {
         <strong>Carnegie Mellon</strong> ( {CMU?.length} ): {avg_sleep(CMU)}
       </p>
 
-      <table>
+      <table  className="border-collapse border">
         <tr>
           <th>Company</th>
           <th>Contact</th>
@@ -161,7 +161,6 @@ export function LoadingAndSummarizingData() {
           <td>Francisco Chang</td>
           <td>Mexico</td>
         </tr>
-        border: 1px solid black;
       </table>
     </div>
 
