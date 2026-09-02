@@ -129,7 +129,8 @@ export function LoadingAndSummarizingData() {
         College Student's Average Sleep
       </h1>
       <p className="mb-6">
-          <strong>Rows:</strong> {data?.length}
+          <strong>Rows:</strong> {data?.length}{' '}
+          <strong>Columns:</strong> {Object.keys(data?.[0] || {}).length}
       </p>
     </div>
 
