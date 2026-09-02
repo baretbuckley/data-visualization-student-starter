@@ -122,6 +122,9 @@ export function LoadingAndSummarizingData() {
         role="img"
         aria-label="Summary of the Palmer Penguins dataset"
       ></svg>
+      <h1 className="text-3xl font-bold mb-2">
+        This is some more text
+      </h1>
     </div>
   );
 }
