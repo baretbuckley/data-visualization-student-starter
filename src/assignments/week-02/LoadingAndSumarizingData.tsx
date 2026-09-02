@@ -144,6 +144,24 @@ export function LoadingAndSummarizingData() {
         <strong>All Students</strong> ( {data?.length} ): {avg_sleep(data || [])}
         <strong>Carnegie Mellon</strong> ( {CMU?.length} ): {avg_sleep(CMU || [])}
       </p>
+
+      <table>
+        <tr>
+          <th>Company</th>
+          <th>Contact</th>
+          <th>Country</th>
+        </tr>
+        <tr>
+          <td>Alfreds Futterkiste</td>
+          <td>Maria Anders</td>
+          <td>Germany</td>
+        </tr>
+        <tr>
+          <td>Centro comercial Moctezuma</td>
+          <td>Francisco Chang</td>
+          <td>Mexico</td>
+        </tr>
+      </table>
     </div>
 
 
