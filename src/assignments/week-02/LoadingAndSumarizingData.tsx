@@ -95,7 +95,7 @@ const DATA_URL = `${import.meta.env.BASE_URL}college_sleep_and_gpa.csv`;
 
 
 export function LoadingAndSummarizingData() {
-  const svgRef = useRef<SVGSVGElement>(null);
+  // const svgRef = useRef<SVGSVGElement>(null);
   // const { ref: divRef, dimensions } = useDimensions();
   const [data, setData] = useState<Row[]>([]);
   const [CMU, setCMU] = useState<Row[]>([]);
