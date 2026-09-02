@@ -43,9 +43,17 @@ interface Row {
 interface UniStats {
   university: string;
   student_avg: number;
+  student_cnt: number;
   female_avg: number;
+  female_cnt: number;
   male_avg: number;
+  male_cnt: number;
   first_gen_avg: number;
+  first_gen_cnt: number;
+  gpa_inc_avg: number;
+  gpa_inc_cnt: number;
+  gpa_dec_avg: number;
+  gpa_dec_cnt: number;
 }
 
 function avg_sleep(rows: Row[]) {
@@ -54,11 +62,37 @@ function avg_sleep(rows: Row[]) {
   return sum / rows.length;
 }
 
+function GetUniStats(uni_name: string, students: Row[]): UniStats {
+  const female_students = students.filter((row) => row.gender == "female");
+  const male_students = students.filter((row) => row.gender == "male");
+  const first_gen = students.filter((row) => row.first_generation == true);
+  const gpa_inc = students.filter((row) => row.gpa_change > 0);
+  const gpa_dec = students.filter((row) => row.gpa_change < 0);
+
+  return {
+    university: uni_name,
+    student_avg: avg_sleep(students),
+    student_cnt: students.length,
+    female_avg: avg_sleep(female_students),
+    female_cnt: female_students.length,
+    male_avg: avg_sleep(male_students),
+    male_cnt: male_students.length,
+    first_gen_avg: avg_sleep(first_gen),
+    first_gen_cnt: first_gen.length,
+    gpa_inc_avg: avg_sleep(gpa_inc),
+    gpa_inc_cnt: gpa_inc.length,
+    gpa_dec_avg: avg_sleep(gpa_dec),
+    gpa_dec_cnt: gpa_dec.length,
+  };
+}
+
 // const DATA_URL = `${import.meta.env.BASE_URL}datasets/college_sleep_and_gpa.csv`;
 const DATA_URL = `${import.meta.env.BASE_URL}college_sleep_and_gpa.csv`;
 
 const FONT_SIZE = 28;
 const LINE_HEIGHT = FONT_SIZE * 1.2;
+
+
 
 export function LoadingAndSummarizingData() {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -87,8 +121,18 @@ export function LoadingAndSummarizingData() {
           })),
         );
         var unis = Array.from(new Set(data.map(item => item.university)).add("Total"));
-        console.log(unis);
-        
+        console.log("unis", unis);
+
+        setUniStats(
+          unis.map((uni) => {
+            if (uni === "Total") {
+              return GetUniStats(uni, data);
+            }
+            return GetUniStats(uni, data.filter((row) => row.university === uni));
+          })
+        )
+        console.log("stats:", uniStats);
+
         setCMU((data || []).filter((row) => {row.university == "Carnegie Mellon University"}));
         console.log(data?.length);
       })
