@@ -65,7 +65,7 @@ export function LoadingAndSummarizingData() {
   const { ref: divRef, dimensions } = useDimensions();
   const [data, setData] = useState<Row[]>([]);
   const [CMU, setCMU] = useState<Row[]>([]);
-  const [universities, setUniversities] = useState<string[]>([]);
+  const [uniStats, setUniStats] = useState<UniStats[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,8 +86,9 @@ export function LoadingAndSummarizingData() {
             gpa_change: row.gpa_change,
           })),
         );
-        const unis = Array.from(new Set(data.map(item => item.university)));
+        var unis = Array.from(new Set(data.map(item => item.university)).add("Total"));
         console.log(unis);
+        
         setCMU((data || []).filter((row) => {row.university == "Carnegie Mellon University"}));
         console.log(data?.length);
       })
@@ -100,38 +101,14 @@ export function LoadingAndSummarizingData() {
     };
   }, []);
 
-  const summary = useMemo<Summary | null>(() => {
-    if (!data) return null;
-    console.log(JSON.stringify(data, null, 2));
-    return {
-      rows: data.length,
-      columns: Object.keys(data[0]).length,
-    };
-  }, [data]);
-
-  useEffect(() => {
-    const svg = svgRef.current;
-    if (!svg || dimensions.width === 0 || dimensions.height === 0 || !summary) return;
-
-    const centerX = dimensions.width / 2;
-    const centerY = dimensions.height / 2;
-
-    select(svg)
-      .selectAll('text')
-      .data([summary])
-      .join('text')
-      .attr('x', centerX)
-      .attr('y', centerY)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('font-size', FONT_SIZE)
-      .selectAll('tspan')
-      .data((d) => [`Rows: ${d.rows}`, `Columns: ${d.columns}`])
-      .join('tspan')
-      .attr('x', centerX)
-      .attr('dy', (_d, i) => (i === 0 ? 0 : LINE_HEIGHT))
-      .text((d) => d);
-  }, [dimensions, summary]);
+  // const summary = useMemo<Summary | null>(() => {
+  //   if (!data) return null;
+  //   console.log(JSON.stringify(data, null, 2));
+  //   return {
+  //     rows: data.length,
+  //     columns: Object.keys(data[0]).length,
+  //   };
+  // }, [data]);
 
   return (
     <div ref={divRef} className="relative w-full h-full">
