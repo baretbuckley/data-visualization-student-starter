@@ -56,7 +56,7 @@ export function LoadingAndSummarizingData() {
   const svgRef = useRef<SVGSVGElement>(null);
   const { ref: divRef, dimensions } = useDimensions();
   const [data, setData] = useState<Row[] | null>(null);
-  const [CMU, setCMU] = useState<Row[] | null>(null);
+  const [CMU, setCMU] = useState<Row[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -142,7 +142,7 @@ export function LoadingAndSummarizingData() {
       </h2>
       <p className="mb-6">
         <strong>All Students</strong> ( {data?.length} ): {avg_sleep(data || [])}
-        <strong>Carnegie Mellon</strong> ( {CMU?.length} ): {avg_sleep(CMU || [])}
+        <strong>Carnegie Mellon</strong> ( {CMU?.length} ): {avg_sleep(CMU)}
       </p>
 
       <table>
