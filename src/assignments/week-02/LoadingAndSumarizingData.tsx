@@ -142,7 +142,9 @@ export function LoadingAndSummarizingData() {
       if (uni === "Total") {
         return GetUniStats(uni, data);
       }
-      return GetUniStats(uni, data.filter((row) => row.university === uni));
+      const tmp = GetUniStats(uni, data.filter((row) => row.university === uni));
+      console.log(tmp);
+      return tmp;
     })
   }, [data]);
 
