@@ -61,14 +61,14 @@ interface UniStats {
 function avg_sleep(rows: Row[]) {
   if (rows.length === 0) return 0;
   const sum = rows.map((row) => row.avg_sleep_hours).reduce((acc, curr) => acc + curr, 0);
-  console.log("from", sum, rows.length, sum / (rows.length), "to");
+  console.log("from", typeof(sum), sum, "to");
   return sum / rows.length;
 }
 
 function GetUniStats(uni_name: string, students: Row[]): UniStats {
   const female_students = students.filter((row) => row.gender === "female");
   const male_students = students.filter((row) => row.gender === "male");
-  const first_gen = students.filter((row) => row.first_generation == true);
+  const first_gen = students.filter((row) => row.first_generation === true);
   const gpa_inc = students.filter((row) => row.gpa_change > 0);
   const gpa_dec = students.filter((row) => row.gpa_change < 0);
 
