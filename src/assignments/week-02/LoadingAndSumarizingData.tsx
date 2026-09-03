@@ -59,8 +59,9 @@ interface UniStats {
 }
 
 function avg_sleep(rows: Row[]) {
-  if (!rows || rows.length === 0) return 0;
+  if (rows.length === 0) return 0;
   const sum = rows.map((row) => row.avg_sleep_hours).reduce((acc, curr) => acc + curr, 0);
+  console.log(sum, rows.length, sum / rows.length);
   return sum / rows.length;
 }
 
