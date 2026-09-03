@@ -61,7 +61,7 @@ interface UniStats {
 function avg_sleep(rows: Row[]) {
   if (rows.length === 0) return 0;
   const sum = rows.map((row) => row.avg_sleep_hours).reduce((acc, curr) => acc + curr, 0);
-  console.log(sum, rows.length, sum / rows.length);
+  console.log("from", sum, rows.length, sum / (rows.length), "to");
   return sum / rows.length;
 }
 
