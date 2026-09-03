@@ -71,6 +71,8 @@ function GetUniStats(uni_name: string, students: Row[]): UniStats {
   const gpa_inc = students.filter((row) => row.gpa_change > 0);
   const gpa_dec = students.filter((row) => row.gpa_change < 0);
 
+  console.log("lengths", {female: female_students.length, male: male_students.length, first_get: first_gen, gpa_inc: gpa_inc, gpa_dec: gpa_dec}, students);
+
   return {
     university: uni_name,
     student_avg: avg_sleep(students),
@@ -135,7 +137,6 @@ export function LoadingAndSummarizingData() {
 
   const stats = useMemo<UniStats[]>(() => {
     if (data.length === 0) return [];
-    console.log(JSON.stringify(data, null, 2));
     const unis = Array.from(new Set(data.map(item => item.university)).add("Total"));
     // setUniversities(unis);)
     return unis.map((uni) => {
@@ -143,7 +144,7 @@ export function LoadingAndSummarizingData() {
         return GetUniStats(uni, data);
       }
       const tmp = GetUniStats(uni, data.filter((row) => row.university === uni));
-      console.log(tmp);
+      // console.log(tmp);
       return tmp;
     })
   }, [data]);
