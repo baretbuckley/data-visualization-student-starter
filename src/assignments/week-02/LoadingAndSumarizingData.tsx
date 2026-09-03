@@ -35,8 +35,7 @@ export function useDimensions() {
 interface Row {
   university: string;
   gender: string;
-  first_generation: boolean;
-  underrepresented: boolean;
+  first_generation: number;
   avg_sleep_hours: number;
   term_gpa: number;
   gpa_change: number;
@@ -68,7 +67,7 @@ function avg_sleep(rows: Row[]) {
 function GetUniStats(uni_name: string, students: Row[]): UniStats {
   const female_students = students.filter((row) => row.gender === "female");
   const male_students = students.filter((row) => row.gender === "male");
-  const first_gen = students.filter((row) => row.first_generation === true);
+  const first_gen = students.filter((row) => row.first_generation === 1);
   const gpa_inc = students.filter((row) => row.gpa_change > 0);
   const gpa_dec = students.filter((row) => row.gpa_change < 0);
 
@@ -119,11 +118,10 @@ export function LoadingAndSummarizingData() {
           parsed.map((row: any) => ({
             university: row.university,
             gender: row.gender,
-            first_generation: row.first_generation,
-            underrepresented: row.underrepresented,
-            avg_sleep_hours: row.avg_sleep_hours,
-            term_gpa: row.term_gpa,
-            gpa_change: row.gpa_change,
+            first_generation: parseInt(row.first_generation),
+            avg_sleep_hours: parseFloat(row.avg_sleep_hours),
+            term_gpa: parseFloat(row.term_gpa),
+            gpa_change: parseFloat(row.gpa_change),
           })),
         );
       })
