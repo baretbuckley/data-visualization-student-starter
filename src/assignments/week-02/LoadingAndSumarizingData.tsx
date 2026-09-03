@@ -61,12 +61,12 @@ function avg_sleep(rows: Row[]) {
   if (rows.length === 0) return 0;
   const sum = rows.map((row) => row.avg_sleep_hours).reduce((acc: number, curr: number) => acc + curr, 0);
   console.log("from", typeof(sum), sum, "to");
-  return sum / rows.length;
+  return Number((sum / rows.length).toFixed(2));
 }
 
 function GetUniStats(uni_name: string, students: Row[]): UniStats {
-  const female_students = students.filter((row) => row.gender === "female");
-  const male_students = students.filter((row) => row.gender === "male");
+  const female_students = students.filter((row) => row.gender === "Female");
+  const male_students = students.filter((row) => row.gender === "Male");
   const first_gen = students.filter((row) => row.first_generation === 1);
   const gpa_inc = students.filter((row) => row.gpa_change > 0);
   const gpa_dec = students.filter((row) => row.gpa_change < 0);
