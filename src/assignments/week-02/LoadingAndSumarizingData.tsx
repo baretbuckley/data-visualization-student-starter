@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 // import { select } from 'd3-selection';
 import { csvParse } from 'd3-dsv';
+// import { keys } from 'ts-transformer-keys';
+
 
 
 export function useDimensions() {
@@ -98,7 +100,8 @@ export function LoadingAndSummarizingData() {
   // const svgRef = useRef<SVGSVGElement>(null);
   // const { ref: divRef, dimensions } = useDimensions();
   const [data, setData] = useState<Row[]>([]);
-  const [CMU, setCMU] = useState<Row[]>([]);
+  // const [universities, setUniversities] = useState<string[]>([]);
+  const statCols = ["university", "all students", "female students", "male students", "first gen students", "increased GPA", "decreased GPA"];
   // const [uniStats, setUniStats] = useState<UniStats[]>([]);
 
   useEffect(() => {
@@ -120,16 +123,6 @@ export function LoadingAndSummarizingData() {
             gpa_change: row.gpa_change,
           })),
         );
-        console.log(data);
-        console.log(data.map(item => item.university));
-        console.log(new Set(data.map(item => item.university)).add("Total"));
-        var unis = Array.from(new Set(data.map(item => item.university)).add("Total"));
-        console.log("unis", unis);
-
-        
-
-        setCMU((data || []).filter((row) => {row.university == "Carnegie Mellon University"}));
-        console.log(data?.length);
       })
       .catch((error) => {
         console.error('Failed to load data', error);
@@ -144,6 +137,7 @@ export function LoadingAndSummarizingData() {
     if (data.length === 0) return [];
     console.log(JSON.stringify(data, null, 2));
     const unis = Array.from(new Set(data.map(item => item.university)).add("Total"));
+    // setUniversities(unis);)
     return unis.map((uni) => {
       if (uni === "Total") {
         return GetUniStats(uni, data);
@@ -171,7 +165,7 @@ export function LoadingAndSummarizingData() {
         <strong>Rows:</strong> {data?.length}{' '}
         <strong>Columns:</strong> {Object.keys(data?.[0] || {}).length}
       </p>
-      <h2 className="text-3xl font-bold mb-2">
+      {/* <h2 className="text-3xl font-bold mb-2">
         Average Student's Sleep
       </h2>
       <p className="mb-6">
@@ -195,40 +189,90 @@ export function LoadingAndSummarizingData() {
           <td>Francisco Chang</td>
           <td>Mexico</td>
         </tr>
-      </table>
+      </table>*/}
+
+      <h2 className="text-3xl font-bold mb-2">
+        Average Student's Sleep
+      </h2>
+
+      <div className="overflow-x-auto">
+         <table className="border-collapse border">
+           <thead>
+             <tr>
+               {statCols.map((col) => (
+                 <th
+                   key={col}
+                   className="border px-3 py-2"
+                 >
+                   {col}
+                 </th>
+               ))}
+             </tr>
+           </thead>
+
+            <tbody>
+            {stats.map((stat, index) => (
+              <tr key={index}>
+
+                <td
+                  key={statCols[0]}
+                  className="border px-3 py-2"
+                >
+                  {stat.university}
+                </td>
+
+                <td
+                  key={statCols[1]}
+                  className="border px-3 py-2"
+                >
+                  {stat.student_avg} ( {stat.student_cnt} )
+                </td>
+
+                <td
+                  key={statCols[2]}
+                  className="border px-3 py-2"
+                >
+                  {stat.female_avg} ( {stat.female_cnt} )
+                </td>
+
+                <td
+                  key={statCols[3]}
+                  className="border px-3 py-2"
+                >
+                  {stat.male_avg} ( {stat.male_cnt} )
+                </td>
+
+                <td
+                  key={statCols[4]}
+                  className="border px-3 py-2"
+                >
+                  {stat.first_gen_avg} ( {stat.first_gen_cnt} )
+                </td>
+
+                <td
+                  key={statCols[5]}
+                  className="border px-3 py-2"
+                >
+                  {stat.gpa_inc_avg} ( {stat.gpa_inc_cnt} )
+                </td>
+
+                <td
+                  key={statCols[6]}
+                  className="border px-3 py-2"
+                >
+                  {stat.gpa_dec_avg} ( {stat.gpa_dec_cnt} )
+                </td>
+
+
+              </tr>
+            ))}
+          </tbody>
+
+
+         </table>
+       </div>
+
     </div>
-
-
-    // <div className="overflow-x-auto">
-    //     <table className="border-collapse border">
-    //       <thead>
-    //         <tr>
-    //           {columns.map((column) => (
-    //             <th
-    //               key={column}
-    //               className="border px-3 py-2"
-    //             >
-    //               {column}
-    //             </th>
-    //           ))}
-    //         </tr>
-    //       </thead>
-
-    //       <tbody>
-    //         {data.slice(0, 10).map((row, index) => (
-    //           <tr key={index}>
-    //             {columns.map((column) => (
-    //               <td
-    //                 key={column}
-    //                 className="border px-3 py-2"
-    //               >
-    //                 {row[column]}
-    //               </td>
-    //             ))}
-    //           </tr>
-    //         ))}
-    //       </tbody>
-    //     </table>
-    //   </div>
+     
   );
 }
