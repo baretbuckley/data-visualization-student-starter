@@ -65,8 +65,8 @@ function avg_sleep(rows: Row[]) {
 }
 
 function GetUniStats(uni_name: string, students: Row[]): UniStats {
-  const female_students = students.filter((row) => row.gender == "female");
-  const male_students = students.filter((row) => row.gender == "male");
+  const female_students = students.filter((row) => row.gender === "female");
+  const male_students = students.filter((row) => row.gender === "male");
   const first_gen = students.filter((row) => row.first_generation == true);
   const gpa_inc = students.filter((row) => row.gpa_change > 0);
   const gpa_dec = students.filter((row) => row.gpa_change < 0);
