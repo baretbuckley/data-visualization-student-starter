@@ -11,12 +11,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@canvasjs/charts": "^3.17.2",
+    "@canvasjs/react-charts": "^1.0.2",
     "@tailwindcss/vite": "^4.2.2",
+    "@types/plotly.js": "^3.0.13",
+    "canvasjs": "^1.8.3",
     "d3": "^7.9.0",
     "d3-array": "^3.2.4",
     "d3-dsv": "^3.0.1",
     "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
+    "lcjs": "^0.0.0",
+    "plotly.js": "^4.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router": "^7.13.2",
@@ -41,5 +47,8 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^8.0.0"
+  },
+  "allowScripts": {
+    "plotly.js@4.1.0": true
   }
 }

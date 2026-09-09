@@ -41,3 +41,19 @@ The second would display the performance as a grid, with each axis being the mat
 The last would allow the user to explore the performance of operation types (sparse matrices, Eigen, FFT, core, etc.). This would be done with a bar chart showing the performances of both compiler options with the exact percent increase about the bar. Clicking an operation type would then change the display to instead be showing the different operations of that just as was done before allowing a more fine understanding of how the performance differences compare between operations.
 
 
+## Task Analysis
+
+
+
+My goal is to determine the extent that the vectorization of code using SIMD instructions has on performance. And to further determine how the performance increases compare between auto-vectorization (a compiler optimization) and hand-vectorization (an optimization made by the developer). Vectorization has the impact on code which involves a significant amount of iteration, and so I want to determine the performance impact on linear algebra operations which exemplify the target use case of the optimization.
+
+### Auto- vs Hand-Vectorization
+The core use of the program is to give the user an understanding for how the peformance of auto- and hand-vectorized code compares to the equivalent non-vectorized code. In developing highly optimized code, vectorization can enable further performance improvements. Modern compilers are able to accomplish this for simple loops, however may fail to vectorize more complex instances. Hand-vectorization can take full advantage of the performance increases, however requires developer time to impliment the optimization. The visualization should allow the performance trade of between the two options to be determined. 
+
+### Performance over Scale
+The visualization should also demonstrate how the performance of the code is effected by the problem size. In this instance it will be done as the size of the matrix used in the operation.
+
+
+
+### Impact by Operation Type
+The testbench which provides the performance stat data, does so over multiple operation types (sparse matrices, Eigen, etc.), each of which contains multiple related operations. I want the visualization to provide a simple interface to view the the different types and operations to determine how the performance improvements varies between the operations. 
