@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
 import { ResponsivePseudoScatterPlot } from './week-01/ResponsivePseudoScatterPlot';
 import { LoadingAndSummarizingData } from './week-02/LoadingAndSumarizingData';
 import { FirstVisualization } from './week-03/FirstVisualization';
+import { RevisedVisualization } from './week-04/RevisedVis';
 
 
 
@@ -26,6 +27,11 @@ export const assignments: Assignment[] = [
     id: '3',
     name: 'Week 3',
     component: FirstVisualization,
+  },
+  {
+    id: '4',
+    name: 'Week 4',
+    component: RevisedVisualization,
   },
 ];
 
