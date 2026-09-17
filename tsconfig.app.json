@@ -18,11 +18,15 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": true, // TODO: Enable after dev
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+      // "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./node_modules"],
+  // }
   },
   "include": ["src"]
 }

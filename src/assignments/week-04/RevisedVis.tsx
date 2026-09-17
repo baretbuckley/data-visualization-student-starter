@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
+import * as d3 from "d3";
 // import { select } from 'd3-selection';
 import { csvParse } from 'd3-dsv';
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear, type ScaleLinear } from 'd3-scale';
 // import { scaleBand, scaleLinear } from 'd3-scale';
-// import { max } from 'd3-array';
+import { max } from 'd3-array';
 import { select } from 'd3-selection';
 import { useDimensions } from './useDimensions';
 import { min } from 'd3';
+import { hexbin } from 'd3-hexbin';
 
 // import { keys } from 'ts-transformer-keys';
 
@@ -37,12 +39,6 @@ interface Row {
 
 const DATA_URL = `${import.meta.env.BASE_URL}college_sleep_and_gpa.csv`;
 
-
-interface DataPoint {
-  x: number;
-  y: number;
-}
-
 // interface Comparison {
 
 // }
@@ -55,20 +51,26 @@ function shuffleArray(array: any[]) {
     return array;
 }
 
+interface GraphSpace {
+  dimensions: Dimensions;
+  margin: { top: number; right: number; bottom: number; left: number };
+  xScale: ScaleLinear<number, number, never>;
+  yScale: ScaleLinear<number, number, never>;
+}
 
-function ScatterPlot(svg: SVGSVGElement | null, dimensions: Dimensions, data: Row[], xAxis: keyof Pick<Row, 'gpa_change' | 'prior_gpa' | 'term_gpa'>) {
+
+function ScatterPlot(svg: SVGSVGElement | null, data: Row[], graphSpace: GraphSpace, xAxis: keyof Pick<Row, 'gpa_change' | 'prior_gpa' | 'term_gpa'>) {
   const svgSel = select(svg);
   svgSel.selectAll('*').remove()
 
-  const margin = { top: 20, right: 20, bottom: 60, left: 60 };
+  const dimensions = graphSpace.dimensions
+  const margin = graphSpace.margin
+  const xScale = graphSpace.xScale
+  const yScale = graphSpace.yScale
 
-  const xValues = data.map((row) => row[xAxis]);
-  const xMin = xValues.length ? Math.min(...xValues) : 0;
-  const xMax = xValues.length ? Math.max(...xValues) : 4;
-  const xPadding = xMin === xMax ? 1 : (xMax - xMin) * 0.05;
-  const xScale = scaleLinear().domain([xMin - xPadding, xMax + xPadding]).range([margin.left, dimensions.width - margin.right]);
 
-  const yScale = scaleLinear().domain([10, 0]).range([margin.top, dimensions.height-margin.bottom]);
+  const xMin = xAxis == 'gpa_change' ? -2 : 0;
+  const xMax = xAxis == 'gpa_change' ? 2 : 4;
 
 
   // Calc line of best fit
@@ -161,41 +163,51 @@ function ScatterPlot(svg: SVGSVGElement | null, dimensions: Dimensions, data: Ro
     .data([xAxis === 'gpa_change' ? "Change in GPA (4.0 scale)" : xAxis === 'prior_gpa' ? "Prior GPA" : "Term GPA"])
     .join('text')
     .attr('class', 'xlabel')
-    .attr('x', xScale(0))
+    .attr('x', xScale(((xMax+xMin)/2)))
     .attr('y', dimensions.height-margin.bottom + 30)
     .attr('font-size', 20)
     .text((d) => d.toLocaleString())
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'middle');
 
+  const hexbinGenerator = hexbin<
+    [number, number]
+  >()
+    .radius(20)
+    .extent([
+      [margin.left, margin.top],
+      [dimensions.width - margin.right, dimensions.height - margin.bottom],
+    ]);
+
+  const hexData = hexbinGenerator(
+    data.map((row) => [xScale(row[xAxis]), yScale(row.avg_sleep_hours)] as [number, number]),
+  );
+
   svgSel
-    .selectAll('circle')
-    .data(data)
-    .join('circle')
-    .attr('cx', (d) => xScale(d[xAxis]))
-    .attr('cy', (d) => yScale(d.avg_sleep_hours))
-    .attr('r', 4)
-    .attr('stroke', '#5a5b5c')
-    .attr('fill', (row) => {
-      if (row.university == "Carnegie Mellon University") {
-        return '#064789';
-      } else if (row.university == "University of Washington") {
-        return '#427aa1';
-      } else if (row.university == "University of Notre Dame") {
-        return '#ebf2fa';
-      } else {
-        return '#ffd166';
-      }
-    });
+    .selectAll('path.hexbin')
+    .data(hexData)
+    .join('path')
+    .attr('class', 'hexbin')
+    .attr('d', () => hexbinGenerator.hexagon())
+    .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
+    .attr('fill', (d) => {
+      const intensity = Math.min(1, d.length / (max(d3.map(hexData, (d) => d.length)) ?? 1));
+      // return d3.interpolateRgbBasis(['#f3e8ff', '#c084fc', '#7c3aed'])(intensity);
+      return d3.interpolateRgbBasis(['#f3e8ff', '#64398e', '#6c3dbe'])(intensity);
+    })
+    .attr('opacity', 1)
+    .attr('stroke', '#4c1d95')
+    .attr('stroke-width', 0.8);
+
 
   // Line of best fit: y = y_mean + slope * (x - x_mean)
   svgSel
     .append('line')
     .attr('class', 'best-fit-line')
-    .attr('x1', xScale(-2))
-    .attr('x2', xScale(2))
-    .attr('y1', yScale(y_mean + slope * (-2 - x_mean)))
-    .attr('y2', yScale(y_mean + slope * (2 - x_mean)))
+    .attr('x1', xScale(xMin))
+    .attr('x2', xScale(xMax))
+    .attr('y1', yScale(y_mean + slope * (xMin - x_mean)))
+    .attr('y2', yScale(y_mean + slope * (xMax - x_mean)))
     .attr('stroke', '#2166ac')
     .attr('stroke-width', 2);
 
@@ -268,26 +280,30 @@ export function RevisedVisualization() {
     (selectFirstGeneration === "All" ||
       row.first_generation === (selectFirstGeneration === "Yes")),
   );
-  // Set display data
-  // setDisplayData(useMemo(() => {
-  //   console.log("unis: ", unis, selectUni);
-  //   return selectUni === "combined"
-  //     ? data
-  //     : data.filter((row: Row) => String(row.university) === selectUni);
-  // }, [selectUni, data, unis]));
-  // useEffect(() => {
-    
-  //   setDisplayData(
-  //     selectUni === "combined"
-  //       ? data
-  //       : data.filter((row: Row) => String(row.university) === selectUni),
-  //   );
-  // }, [selectUni, data, unis]);
+
+  
 
   const svg_dim: Dimensions = {
     width: dimensions.width / 2,
-    height: min([dimensions.height, dimensions.width/2]),
-  };
+    height: min([dimensions.height, dimensions.width/2]) ?? 0,
+  }; 
+
+  const margin = { top: 20, right: 30, bottom: 50, left: 50 };
+  const graphSpace: GraphSpace = useMemo(() => {
+    const xMin = xAxis == 'gpa_change' ? -2 : 0;
+    const xMax = xAxis == 'gpa_change' ? 2 : 4;
+    const xScale = scaleLinear().domain([xMin, xMax]).range([margin.left, svg_dim.width - margin.right]);
+    const yScale = scaleLinear().domain([10, 0]).range([margin.top, svg_dim.height-margin.bottom]);
+    
+    return {
+      dimensions: svg_dim,
+      margin,
+      xScale,
+      yScale,
+    };
+  }, [svg_dim, displayData, xAxis]);
+
+
 
 
 
@@ -295,23 +311,27 @@ export function RevisedVisualization() {
     const svg = svgRef.current;
     if (!svg || svg_dim.width === 0 || svg_dim.height === 0) return;
     
-    // Create scatterplot of current data
-    const scatterDim: Dimensions = {
-      width: svg_dim.width,
-      height: svg_dim.height,
-    }
-    ScatterPlot(svg, scatterDim, displayData, xAxis);
-  }, [svg_dim, displayData, xAxis]);
+
+    ScatterPlot(svg, displayData, graphSpace, xAxis);
+  }, [svg_dim, displayData, xAxis, graphSpace]);
 
   return (
     <div ref={divRef} className="relative flex h-full w-full flex-row">
-      <svg
-        ref={svgRef}
-        width = {svg_dim.width.toString()}
-        className="h-full"
-        role="img"
-        aria-label="Responsive scatter plot showing 6 data points"
-      ></svg>
+
+      <div>
+        <svg
+          ref={svgRef}
+          width = {svg_dim.width.toString()}
+          className="h-full"
+          role="img"
+          aria-label="Responsive scatter plot showing 6 data points"
+        >
+        </svg>
+
+      </div>
+      
+
+
 
       <label className="flex shrink-0 flex-col gap-2">
           <h1 className="mt-4 text-xl font-bold">Student Average Sleep vs GPA</h1>
