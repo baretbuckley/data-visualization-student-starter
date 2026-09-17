@@ -57,3 +57,27 @@ The visualization should also demonstrate how the performance of the code is eff
 
 ### Impact by Operation Type
 The testbench which provides the performance stat data, does so over multiple operation types (sparse matrices, Eigen, etc.), each of which contains multiple related operations. I want the visualization to provide a simple interface to view the the different types and operations to determine how the performance improvements varies between the operations. 
+
+
+## Validation
+
+### Domain Situation
+
+I think my biggest user would be someone who's interested in SIMD vectorization, and who has maybe implemented the instruction to optimize a few simple use cases. The person would be curious on comparing the different performance gains from use in vectorization. The main question I believe they would have is whether the current state of auto-vectorization is able to compare with hand-vectorization for prime use cases for it (e.g. very iterative tasks). A more professional user may be someone deciding if implementing vectorized code is the right choice for their current project. The visualization would allow them to understand the benefits and use that to compare with the trade-offs involved with utilizing them. 
+
+With the benefit of surveying the users I could confirm if Eigen is a good use case to base it on as it is a project more favorable to vectorization, or if a different project less ideal for it would better meet what they'd want to see. 
+
+### Data/Task Abstraction
+
+The task be done using the visualization is to understand the relative performance of vectorization over varying tasks. The goal would to be able to clearly understand the performance difference of a task and to be able to move focus between different tasks/use-cases to compare them.
+
+The Data would be abstracted by the averaging the results of the testbench over different operations and getting the relational difference between the 3 methods (scalar, auto-vectorized, and hand-vectorized).
+
+### Visual Encoding
+
+The data will be visually encoded in two ways. The first would directly compare the different vectorization methods on one task, allowing a user to grasp the performance differences, and ideally include how it is effected by another variable (i.e. the matrix size of Eigen operations). This would be achieved over a line chart displaying each method. The Second would simplify the per operation performances (such as averaging performance across all matrix sizes) in order to allow space to factor in more tasks displayed simultaneously. This would be achieved by a series of bar charts, with each bar showing performances over one operation.
+The visualization should allow a simple way to move between the abstractions and quickly between the operations being compared.
+
+### Algorithm
+
+Due the the fact that recompiling and running the testbenches is a slow process, the visualization will be implemented by storing the results once for all combinations and accessing it as a large data set, the largest issue is avaoided. However this has the disadvantage that it limits how many combanations can be used, as implementing all of them would become infeasible. Without re-running the data collection, the only remaining process is to compare different data sets and average over sections of them.
