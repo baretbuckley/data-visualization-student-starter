@@ -3,6 +3,7 @@ import { ResponsivePseudoScatterPlot } from './week-01/ResponsivePseudoScatterPl
 import { LoadingAndSummarizingData } from './week-02/LoadingAndSumarizingData';
 import { FirstVisualization } from './week-03/FirstVisualization';
 import { RevisedVisualization } from './week-04/RevisedVis';
+import { InteractiveVis } from './week-05/interactiveVis';
 
 
 
@@ -32,6 +33,11 @@ export const assignments: Assignment[] = [
     id: '4',
     name: 'Week 4',
     component: RevisedVisualization,
+  },
+  {
+    id: '5',
+    name: 'Week 5',
+    component: InteractiveVis,
   },
 ];
 
