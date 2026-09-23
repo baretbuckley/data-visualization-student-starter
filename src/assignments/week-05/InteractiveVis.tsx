@@ -501,7 +501,7 @@ export function InteractiveVis() {
           <span>By University:</span>
           <select
             className="max-w-full rounded border border-gray-300 p-2"  
-            value={X_AXIS_CONFIG[xAxis].label}
+            value={filter.uni}
             onChange={(event) => setFilter(updateUni(filter, event.target.value))}
           >
             {unis.map((uni) => (
