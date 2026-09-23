@@ -113,6 +113,14 @@ interface Margin {
 }
 
 
+// Interactive mouse tool tip
+interface ToolTip {
+  pos: [number, number];
+  value: [number, number];
+  numStudents: number;
+}
+
+
 
 
 
@@ -161,7 +169,7 @@ function calculateRegression(data: StudentRecord[], xAxis: XAxis): Line {
   };
 }
 
-function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace: GraphSpace, xAxis: XAxis) {
+function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace: GraphSpace, xAxis: XAxis, onMouse: (values: ToolTip|null) => void) {
   const svgSel = select(svg);
   svgSel.selectAll('*').remove()
 
@@ -265,6 +273,7 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
     data.map((row) => [xScale(row[xAxis]), yScale(row.avgSleepHours)] as [number, number]),
   );
 
+  
   svgSel
     .selectAll('path.hexbin')
     .data(hexData)
@@ -277,22 +286,49 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
       // return d3.interpolateRgbBasis(['#f3e8ff', '#c084fc', '#7c3aed'])(intensity);
       return d3.interpolateRgbBasis(['#f3e8ff', '#64398e', '#6c3dbe'])(intensity);
     })
-    .attr('opacity', 1)
+    .attr('opacity', 0.8)
     .attr('stroke', '#4c1d95')
-    .attr('stroke-width', 0.8);
+    .attr('stroke-width', 0.8)
+    .on('mouseenter', function (event, d) {
+      // select(this).attr('stroke-width', 2.8);
+      console.log("moved on: ");
+      select(this).attr('stroke', '#000000');
+      select(this).attr('opacity', 1);
+      onMouse({
+        pos: [event.clientX, event.clientY], 
+        value:[xScale.invert(d.x), yScale.invert(d.y)],
+        numStudents: d.values.length,
+      });
+    })
+    .on('mousemove', function (event, d) {
+      console.log("move on: ", xScale(d.x));
+
+      onMouse({
+        pos: [event.clientX, event.clientY], 
+        value:[xScale.invert(d.x), yScale.invert(d.y)],
+        numStudents: d.values.length,
+      });
+    })
+    .on('mouseleave', function (event, d) {
+      select(this).attr('stroke', '#4c1d95');
+      select(this).attr('opacity', 0.8);
+      console.log("left: ", xScale(d.x));
+
+      onMouse(null);
+    });
 
 
   // Line of best fit: y = y_mean + slope * (x - x_mean)
-  const [xStart, xEnd] = xScale.domain()
-  svgSel
-    .append('line')
-    .attr('class', 'best-fit-line')
-    .attr('x1', xScale(xStart))
-    .attr('x2', xScale(xEnd))
-    .attr('y1', yScale(best_fit.y_offset + best_fit.slope * (xStart - best_fit.x_offset)))
-    .attr('y2', yScale(best_fit.y_offset + best_fit.slope * (xEnd - best_fit.x_offset)))
-    .attr('stroke', '#2166ac')
-    .attr('stroke-width', 2);
+  // const [xStart, xEnd] = xScale.domain()
+  // svgSel
+  //   .append('line')
+  //   .attr('class', 'best-fit-line')
+  //   .attr('x1', xScale(xStart))
+  //   .attr('x2', xScale(xEnd))
+  //   .attr('y1', yScale(best_fit.y_offset + best_fit.slope * (xStart - best_fit.x_offset)))
+  //   .attr('y2', yScale(best_fit.y_offset + best_fit.slope * (xEnd - best_fit.x_offset)))
+  //   .attr('stroke', '#2166ac')
+  //   .attr('stroke-width', 2);
 
 }
 
@@ -325,6 +361,8 @@ export function InteractiveVis() {
   const [unis, setUnis] = useState<string[]> (["Combined"]);
 
   const [xAxis, setXAxis] = useState<XAxis>('changeInGPA');
+
+  const [toolTip, setToolTip] = useState<ToolTip|null>(null);
 
 
 
@@ -417,11 +455,20 @@ export function InteractiveVis() {
     if (!svg || svg_dim.width === 0 || svg_dim.height === 0) return;
     
 
-    HexbinPlot(svg, filteredData, graphSpace, xAxis);
+    HexbinPlot(svg, filteredData, graphSpace, xAxis, setToolTip);
   }, [svg_dim, filteredData, xAxis, graphSpace]);
 
   return (
     <div ref={divRef} className="relative flex h-full w-full flex-row">
+
+      {toolTip && (
+          <div className="rounded border" style={{position: 'fixed', left: toolTip.pos[0] + 10, top: toolTip.pos[1] + 10, background: 'gray', color: 'white', padding: '5px'}}>
+              <div>Average Sleep: {toolTip.value[1]}</div>
+              <div>{X_AXIS_CONFIG[xAxis].label}: {toolTip.value[0]}</div>
+              <div>Number of Students: {toolTip.numStudents}</div>
+          </div>
+      )}
+
 
       <div>
         <svg
@@ -443,45 +490,45 @@ export function InteractiveVis() {
         <h1 className="mt-4 text-xl font-bold">Student Average Sleep vs GPA</h1>
           <span className="font-bold">Filter Students</span>
             
-            <span>X Axis:</span>
-            <select
-              className="max-w-full rounded border border-gray-300 p-2"
-              value={xAxis}
-              onChange={(event) => setXAxis(event.target.value as typeof xAxis)}
-            >
-              {Object.entries(X_AXIS_CONFIG).map(([option, config]) => (
-                <option key={config.label} value={option}>{config.label}</option>
-              ))}
-            </select>
-            
-            <span>By University:</span>
-            <select
-              className="max-w-full rounded border border-gray-300 p-2"  
-              value={X_AXIS_CONFIG[xAxis].label}
-              onChange={(event) => setFilter(updateUni(filter, event.target.value))}
-            >
-              {unis.map((uni) => (
-                <option key={uni} value={uni}>
-                  {uni}
-                </option>
-              ))}
-            </select>
+          <span>X Axis:</span>
+          <select
+            className="max-w-full rounded border border-gray-300 p-2"
+            value={xAxis}
+            onChange={(event) => setXAxis(event.target.value as typeof xAxis)}
+          >
+            {Object.entries(X_AXIS_CONFIG).map(([option, config]) => (
+              <option key={config.label} value={option}>{config.label}</option>
+            ))}
+          </select>
+          
+          <span>By University:</span>
+          <select
+            className="max-w-full rounded border border-gray-300 p-2"  
+            value={X_AXIS_CONFIG[xAxis].label}
+            onChange={(event) => setFilter(updateUni(filter, event.target.value))}
+          >
+            {unis.map((uni) => (
+              <option key={uni} value={uni}>
+                {uni}
+              </option>
+            ))}
+          </select>
 
-            <span>By Student Gender:</span>
-            <div className="flex gap-4" role="group" aria-label="Filter by student gender">
-              {genderOptions.map((gender) => (
-                <label key={gender} className="flex items-center gap-1">
-                  <input
-                    type="radio"
-                    name="gender-filter"
-                    value={gender}
-                    checked={filter.gender === gender}
-                    onChange={(event) => setFilter(updateGender(filter, strAsGender(event.target.value)))}
-                  />
-                  {gender}
-                </label>
-              ))}
-            </div>
+          <span>By Student Gender:</span>
+          <div className="flex gap-4" role="group" aria-label="Filter by student gender">
+            {genderOptions.map((gender) => (
+              <label key={gender} className="flex items-center gap-1">
+                <input
+                  type="radio"
+                  name="gender-filter"
+                  value={gender}
+                  checked={filter.gender === gender}
+                  onChange={(event) => setFilter(updateGender(filter, strAsGender(event.target.value)))}
+                />
+                {gender}
+              </label>
+            ))}
+          </div>
 
           <span>By First-Generation Status:</span>
           <div className="flex gap-4" role="group" aria-label="Filter by first-generation status">
