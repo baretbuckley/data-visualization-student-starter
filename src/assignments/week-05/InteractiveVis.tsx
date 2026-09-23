@@ -307,7 +307,7 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
         numStudents: d.length,
       });
     })
-    .on('mouseleave', function (event, d) {
+    .on('mouseleave', function () {
       select(this).attr('stroke', '#4c1d95');
       select(this).attr('opacity', 0.8);
 
