@@ -297,7 +297,7 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
       onMouse({
         pos: [event.clientX, event.clientY], 
         value:[xScale.invert(d.x), yScale.invert(d.y)],
-        numStudents: d.values.length,
+        numStudents: d.length,
       });
     })
     .on('mousemove', function (event, d) {
@@ -306,7 +306,7 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
       onMouse({
         pos: [event.clientX, event.clientY], 
         value:[xScale.invert(d.x), yScale.invert(d.y)],
-        numStudents: d.values.length,
+        numStudents: d.length,
       });
     })
     .on('mouseleave', function (event, d) {
@@ -463,8 +463,8 @@ export function InteractiveVis() {
 
       {toolTip && (
           <div className="rounded border" style={{position: 'fixed', left: toolTip.pos[0] + 10, top: toolTip.pos[1] + 10, background: 'gray', color: 'white', padding: '5px'}}>
-              <div>Average Sleep: {toolTip.value[1]}</div>
-              <div>{X_AXIS_CONFIG[xAxis].label}: {toolTip.value[0]}</div>
+              <div>Average Sleep: {toolTip.value[1].toFixed(1)}</div>
+              <div>{X_AXIS_CONFIG[xAxis].label}: {toolTip.value[0].toFixed(2)}</div>
               <div>Number of Students: {toolTip.numStudents}</div>
           </div>
       )}
