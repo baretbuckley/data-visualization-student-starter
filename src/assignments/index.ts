@@ -3,7 +3,7 @@ import { ResponsivePseudoScatterPlot } from './week-01/ResponsivePseudoScatterPl
 import { LoadingAndSummarizingData } from './week-02/LoadingAndSumarizingData';
 import { FirstVisualization } from './week-03/FirstVisualization';
 import { RevisedVisualization } from './week-04/RevisedVis';
-import { InteractiveVis } from './week-05/interactiveVis';
+import { InteractiveVis } from './week-05/InteractiveVis';
 
 
 

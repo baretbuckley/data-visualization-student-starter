@@ -291,7 +291,6 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
     .attr('stroke-width', 0.8)
     .on('mouseenter', function (event, d) {
       // select(this).attr('stroke-width', 2.8);
-      console.log("moved on: ");
       select(this).attr('stroke', '#000000');
       select(this).attr('opacity', 1);
       onMouse({
@@ -301,7 +300,6 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
       });
     })
     .on('mousemove', function (event, d) {
-      console.log("move on: ", xScale(d.x));
 
       onMouse({
         pos: [event.clientX, event.clientY], 
@@ -312,23 +310,22 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
     .on('mouseleave', function (event, d) {
       select(this).attr('stroke', '#4c1d95');
       select(this).attr('opacity', 0.8);
-      console.log("left: ", xScale(d.x));
 
       onMouse(null);
     });
 
 
   // Line of best fit: y = y_mean + slope * (x - x_mean)
-  // const [xStart, xEnd] = xScale.domain()
-  // svgSel
-  //   .append('line')
-  //   .attr('class', 'best-fit-line')
-  //   .attr('x1', xScale(xStart))
-  //   .attr('x2', xScale(xEnd))
-  //   .attr('y1', yScale(best_fit.y_offset + best_fit.slope * (xStart - best_fit.x_offset)))
-  //   .attr('y2', yScale(best_fit.y_offset + best_fit.slope * (xEnd - best_fit.x_offset)))
-  //   .attr('stroke', '#2166ac')
-  //   .attr('stroke-width', 2);
+  const [xStart, xEnd] = xScale.domain()
+  svgSel
+    .append('line')
+    .attr('class', 'best-fit-line')
+    .attr('x1', xScale(xStart))
+    .attr('x2', xScale(xEnd))
+    .attr('y1', yScale(best_fit.y_offset + best_fit.slope * (xStart - best_fit.x_offset)))
+    .attr('y2', yScale(best_fit.y_offset + best_fit.slope * (xEnd - best_fit.x_offset)))
+    .attr('stroke', '#2166ac')
+    .attr('stroke-width', 2);
 
 }
 
