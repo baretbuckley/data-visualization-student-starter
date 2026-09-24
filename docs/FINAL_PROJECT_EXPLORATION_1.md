@@ -13,7 +13,7 @@ Branching off this, for the project I want to build a tool to compare the perfor
 With the project I'm hoping to answer the following questions
 * How significant is the difference in vectorization on test-bench performance
 * How are the improvements effected by different matrix shapes
-* Which matrix optimizations see the most change
+* Which matrix operations see the most change
 
 ## Inspiration / Related Visualizations
 
