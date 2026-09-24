@@ -3,15 +3,15 @@
 # Final Project Exploration
 
 ## Topic
-A topic that interests me is code performance evaluations. This is because recently I finished my MQP on compiler optimizations. To evaluate the results, we used Eigen (a c++ lin alg library) which had a useful performance testbench. The issue we had using the resulting data is that it emitted as bunch of json blobs of different operations, so we largely look through the data manually and created simple line graphs to identify operations with any significant improvements.
+A topic that interests me is code performance evaluations. This is because recently I finished my MQP on compiler optimizations. The aspect I worked on was in auto-vectorization, which automaticly implements SIMD (single isntruction multiple data) instructions to perform operations on multiple pieces of data at once (e.g. adding 2 lists together element by element, can be done 4 elements at a time in the cpu).  To evaluate the results, we used Eigen (a c++ lin alg library) which had a useful performance testbench. The issue we had using the resulting data is that it emitted as bunch of json blobs of different operations, so we largely look through the data manually and created simple line graphs to identify operations with any significant improvements.
 
-So my idea for the project is build a tool for easily distinguish the performance increase of different compiler flags and options.
+Branching off this, for the project I want to build a tool to compare the performance impact between scalar (no vectorization used), auto-vectorized, and hand-vectorized over the differing operations exposed in the test bench.
 
 (The data set is manually generated using Eigen's testbench, an example of the dataset's format is in public/bench_fft.json)
 
 ## Questions to be answered
 With the project I'm hoping to answer the following questions
-* How significant is the difference in compiler commands on test-bench performance
+* How significant is the difference in vectorization on test-bench performance
 * How are the improvements effected by different matrix shapes
 * Which matrix optimizations see the most change
 
@@ -80,4 +80,16 @@ The visualization should allow a simple way to move between the abstractions and
 
 ### Algorithm
 
-Due the the fact that recompiling and running the testbenches is a slow process, the visualization will be implemented by storing the results once for all combinations and accessing it as a large data set, the largest issue is avaoided. However this has the disadvantage that it limits how many combanations can be used, as implementing all of them would become infeasible. Without re-running the data collection, the only remaining process is to compare different data sets and average over sections of them.
+Due the the fact that recompiling and running the testbenches is a slow process, the visualization will be implemented by storing the results once for all combinations and accessing it as a large data set, the largest issue is avoided. However this has the disadvantage that it limits how many combanations can be used, as implementing all of them would become infeasible. Without re-running the data collection, the only remaining process is to compare different data sets and average over sections of them.
+
+## North Star
+
+<img width="1800" height="1960" alt="1000059168" src="https://github.com/user-attachments/assets/e812e305-5f36-4a3d-ba27-ff5a6fb72036" />
+
+The greatest difficulty in visualizing the data, is that numerous number of different operations, that they can't all exist in 1 graph. The simple way would be filtering out the different operations to those most significant, but part of my goal is to keep the operations visible so that the user can more finely view the differing matrix operations.
+
+My solution is to begin with a very abstracted view of the data, that is each operation's performance is averaged together over each class of operations (e.g. Core, FFT, etc.). This would be done by a series of bar charts showing the average performance gains for each class. From there the user can "zoom in" by expanding the operation class to view the differing operations within that class in the same manor. Finally the user can zoom into a particular operation to see how the performance is effected by the matrix size used through a line chart. 
+
+Another aspect I would like to include is that when viewing the bar charts, the mode can be switched to a line chart showing each compared to the matrix size as well. While I think that the more operations averaged together the less useful it will be, i think it could still be interesting to see.
+
+
