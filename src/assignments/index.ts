@@ -4,6 +4,7 @@ import { LoadingAndSummarizingData } from './week-02/LoadingAndSumarizingData';
 import { FirstVisualization } from './week-03/FirstVisualization';
 import { RevisedVisualization } from './week-04/RevisedVis';
 import { InteractiveVis } from './week-05/InteractiveVis';
+import { project } from './project/project';
 
 
 
@@ -38,6 +39,11 @@ export const assignments: Assignment[] = [
     id: '5',
     name: 'Week 5',
     component: InteractiveVis,
+  },
+  {
+    id: '11',
+    name: 'Final Project',
+    component: project,
   },
 ];
 

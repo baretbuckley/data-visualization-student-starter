@@ -169,20 +169,14 @@ function calculateRegression(data: StudentRecord[], xAxis: XAxis): Line {
   };
 }
 
-function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace: GraphSpace, xAxis: XAxis, onMouse: (values: ToolTip|null) => void) {
-  const svgSel = select(svg);
-  svgSel.selectAll('*').remove()
+type SVGSel = d3.Selection<SVGSVGElement | null, unknown, null, undefined>
+function graph_background(svgSel: SVGSel, graphSpace: GraphSpace, xAxis: XAxis) {
 
-  const dimensions = graphSpace.dimensions
-  const margin = graphSpace.margin
-  const xScale = graphSpace.xScale
-  const yScale = graphSpace.yScale
-
-
-
-  // Calc line of best fit
-  const best_fit = calculateRegression(data, xAxis)
-
+  const dimensions = graphSpace.dimensions;
+  const margin = graphSpace.margin;
+  const xScale = graphSpace.xScale;
+  const yScale = graphSpace.yScale;
+    
   const tick_count = 5;
   const tick_font_size = 12;
   const label_font_size = 20;
@@ -234,6 +228,7 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
     .attr('font-size', tick_font_size)
     .text((d) => d.toLocaleString());
 
+    
   svgSel
     .selectAll('text.ylabel')
     .data(["Average Hours Slept"])
@@ -258,6 +253,23 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
     .text((d) => d.toLocaleString())
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'middle');
+}
+
+function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace: GraphSpace, xAxis: XAxis, onMouse: (values: ToolTip|null) => void) {
+  const svgSel = select(svg);
+  svgSel.selectAll('*').remove();
+
+  const dimensions = graphSpace.dimensions;
+  const margin = graphSpace.margin;
+  const xScale = graphSpace.xScale;
+  const yScale = graphSpace.yScale;
+
+
+
+  // Calc line of best fit
+  const best_fit = calculateRegression(data, xAxis);
+
+  graph_background(svgSel, graphSpace, xAxis);
 
 
   const hexbinGenerator = hexbin<
@@ -283,14 +295,12 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
     .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
     .attr('fill', (d) => {
       const intensity = Math.min(1, d.length / (d3.max(d3.map(hexData, (d) => d.length)) ?? 1));
-      // return d3.interpolateRgbBasis(['#f3e8ff', '#c084fc', '#7c3aed'])(intensity);
       return d3.interpolateRgbBasis(['#f3e8ff', '#64398e', '#6c3dbe'])(intensity);
     })
     .attr('opacity', 0.8)
     .attr('stroke', '#4c1d95')
     .attr('stroke-width', 0.8)
     .on('mouseenter', function (event, d) {
-      // select(this).attr('stroke-width', 2.8);
       select(this).attr('stroke', '#000000');
       select(this).attr('opacity', 1);
       onMouse({
@@ -300,7 +310,6 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
       });
     })
     .on('mousemove', function (event, d) {
-
       onMouse({
         pos: [event.clientX, event.clientY], 
         value:[xScale.invert(d.x), yScale.invert(d.y)],
@@ -310,7 +319,70 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
     .on('mouseleave', function () {
       select(this).attr('stroke', '#4c1d95');
       select(this).attr('opacity', 0.8);
+      onMouse(null);
+    });
 
+
+  // Line of best fit: y = y_mean + slope * (x - x_mean)
+  const [xStart, xEnd] = xScale.domain()
+  svgSel
+    .append('line')
+    .attr('class', 'best-fit-line')
+    .attr('x1', xScale(xStart))
+    .attr('x2', xScale(xEnd))
+    .attr('y1', yScale(best_fit.y_offset + best_fit.slope * (xStart - best_fit.x_offset)))
+    .attr('y2', yScale(best_fit.y_offset + best_fit.slope * (xEnd - best_fit.x_offset)))
+    .attr('stroke', '#2166ac')
+    .attr('stroke-width', 2);
+
+}
+
+
+
+
+function scatterPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace: GraphSpace, xAxis: XAxis, onMouse: (values: ToolTip|null) => void) {
+  const svgSel = select(svg);
+  svgSel.selectAll('*').remove();
+
+  const dimensions = graphSpace.dimensions;
+  const margin = graphSpace.margin;
+  const xScale = graphSpace.xScale;
+  const yScale = graphSpace.yScale;
+
+
+
+  // Calc line of best fit
+  const best_fit = calculateRegression(data, xAxis);
+
+  graph_background(svgSel, graphSpace, xAxis);
+  svgSel
+    .selectAll('circle')
+    .data(data.map((d) => ({x: d[xAxis], y: d.avgSleepHours})))
+    .join('circle')
+    .attr('cx', (d) => xScale(d.x))
+    .attr('cy', (d) => yScale(d.y))
+    .attr('r', 4)
+    .attr('stroke', '#5a5b5c')
+    .attr('fill', '#fa5a5a')
+    .on('mouseenter', function (event, d) {
+      select(this).attr('stroke', '#000000');
+      select(this).attr('opacity', 1);
+      onMouse({
+        pos: [event.clientX, event.clientY], 
+        value:[xScale.invert(d.x), yScale.invert(d.y)],
+        numStudents: 1,
+      });
+    })
+    .on('mousemove', function (event, d) {
+      onMouse({
+        pos: [event.clientX, event.clientY], 
+        value:[xScale.invert(d.x), yScale.invert(d.y)],
+        numStudents: 1,
+      });
+    })
+    .on('mouseleave', function () {
+      select(this).attr('stroke', '#4c1d95');
+      select(this).attr('opacity', 0.8);
       onMouse(null);
     });
 
@@ -334,14 +406,7 @@ function HexbinPlot(svg: SVGSVGElement | null, data: StudentRecord[], graphSpace
 
 
 
-
-
-
-
-
-
-
-export function InteractiveVis() {
+export function project() {
 
   const svgRef = useRef<SVGSVGElement>(null);
   const { ref: divRef, dimensions } = useDimensions();
@@ -360,6 +425,8 @@ export function InteractiveVis() {
   const [xAxis, setXAxis] = useState<XAxis>('changeInGPA');
 
   const [toolTip, setToolTip] = useState<ToolTip|null>(null);
+
+  const [useScatter, setUseScatter] = useState<boolean>(false);
 
 
 
@@ -384,7 +451,6 @@ export function InteractiveVis() {
             changeInGPA: (parseFloat(row.gpa_change)),
             priorGPA: parseFloat(row.prior_gpa),
             termGPA: parseFloat(row.term_gpa),
-          
           }))),
         );
       })
@@ -451,9 +517,12 @@ export function InteractiveVis() {
     const svg = svgRef.current;
     if (!svg || svg_dim.width === 0 || svg_dim.height === 0) return;
     
-
-    HexbinPlot(svg, filteredData, graphSpace, xAxis, setToolTip);
-  }, [svg_dim, filteredData, xAxis, graphSpace]);
+    if (useScatter) {
+      scatterPlot(svg, filteredData, graphSpace, xAxis, setToolTip);
+    } else {
+      HexbinPlot(svg, filteredData, graphSpace, xAxis, setToolTip);
+    }
+  }, [svg_dim, filteredData, xAxis, graphSpace, useScatter]);
 
   return (
     <div ref={divRef} className="relative flex h-full w-full flex-row">
@@ -541,6 +610,30 @@ export function InteractiveVis() {
                 {status}
               </label>
             ))}
+          </div>
+
+          <span>Select Graph:</span>
+          <div className="flex gap-4" role="group" aria-label="Select Graph Style">
+              <label key="ScatterPlot" className="flex items-center gap-1">
+                <input
+                  type="radio"
+                  name="Select-Graph-Style"
+                  value="ScatterPlot"
+                  checked={useScatter == true}
+                  onChange={() => setUseScatter(true)}
+                />
+                ScatterPlot
+              </label>
+              <label key={"HexPlot"} className="flex items-center gap-1">
+                <input
+                  type="radio"
+                  name="Select-Graph-Style"
+                  value="HexPlot"
+                  checked={useScatter == false}
+                  onChange={() => setUseScatter(false)}
+                />
+                HexPlot
+              </label>
           </div>
 
 
