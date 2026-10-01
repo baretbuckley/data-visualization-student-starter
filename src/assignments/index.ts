@@ -41,7 +41,7 @@ export const assignments: Assignment[] = [
     component: InteractiveVis,
   },
   {
-    id: '11',
+    id: '6',
     name: 'Final Project',
     component: project,
   },

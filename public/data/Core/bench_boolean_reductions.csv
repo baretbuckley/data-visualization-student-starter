@@ -1,0 +1,15 @@
+name,hand_vectorized_iterations,hand_vectorized_real_time,hand_vectorized_cpu_time,hand_vectorized_time_unit,llvm_auto_iterations,llvm_auto_real_time,llvm_auto_cpu_time,llvm_auto_time_unit,scalar_iterations,scalar_real_time,scalar_cpu_time,scalar_time_unit,size,type
+"BM_BooleanVisitor<AllVisitor, Random>/262151",2012555974,0.340773,0.340177,ns,3621509371,0.193275,0.192974,ns,3809138605,0.184314,0.183995,ns,,float
+"BM_BooleanVisitor<AllVisitor, AllFalse>/262151",1276745935,0.45124,0.450501,ns,3547015873,0.197178,0.196899,ns,3814270111,0.184074,0.183799,ns,,float
+"BM_BooleanVisitor<AllVisitor, AllTrue>/262151",227745,3062.51,3056.96,ns,392609,1759.37,1756.7,ns,412702,1699.92,1697.15,ns,,float
+"BM_BooleanVisitor<AllVisitor, FirstTrue>/262151",2129203169,0.341251,0.340729,ns,1809695025,0.389246,0.38868,ns,1862437617,0.364278,0.363776,ns,,float
+"BM_BooleanVisitor<AllVisitor, LastTrue>/262151",2154964149,0.340048,0.339515,ns,3689023615,0.19105,0.190745,ns,3746140438,0.186995,0.186738,ns,,float
+"BM_BooleanVisitor<AllVisitor, FirstFalse>/262151",1766875918,0.390633,0.39002,ns,3609622912,0.192164,0.191839,ns,3774177624,0.185165,0.184926,ns,,float
+"BM_BooleanVisitor<AllVisitor, LastFalse>/262151",230868,3039.98,3035.08,ns,389045,1774.01,1771,ns,396308,1717.95,1715.22,ns,,float
+"BM_BooleanVisitor<AnyVisitor, Random>/262151",1923934776,0.318972,0.318408,ns,1856659071,0.347453,0.346748,ns,1903775775,0.358043,0.357476,ns,,float
+"BM_BooleanVisitor<AnyVisitor, AllFalse>/262151",228239,3075.97,3070.81,ns,224140,3084,3078.86,ns,231194,3033.64,3028.88,ns,,float
+"BM_BooleanVisitor<AnyVisitor, AllTrue>/262151",1869138385,0.364104,0.363546,ns,3765776431,0.186525,0.186201,ns,3800487935,0.186397,0.186035,ns,,float
+"BM_BooleanVisitor<AnyVisitor, FirstTrue>/262151",1610860447,0.434018,0.433366,ns,3707072746,0.190775,0.190397,ns,3678844506,0.186738,0.186407,ns,,float
+"BM_BooleanVisitor<AnyVisitor, LastTrue>/262151",114985,6125.65,6116.2,ns,386992,1794.8,1791.46,ns,399735,1777.82,1774.1,ns,,float
+"BM_BooleanVisitor<AnyVisitor, FirstFalse>/262151",1864584001,0.376856,0.376302,ns,1196625461,0.436472,0.435687,ns,1845725849,0.400522,0.399798,ns,,float
+"BM_BooleanVisitor<AnyVisitor, LastFalse>/262151",1751267620,0.418755,0.418158,ns,3625592594,0.188878,0.188539,ns,3508236656,0.199029,0.198656,ns,,float
