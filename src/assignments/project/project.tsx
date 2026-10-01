@@ -158,7 +158,7 @@ function BarChart(svg: SVGSVGElement | null, data: Data, graphSpace: GraphSpace,
 
   graph
     .selectAll('text.autolabel')
-    .data(["Auto Vectorized Spedup"])
+    .data(["Auto Vectorized Speedup"])
     .join('text')
     .attr('class', 'ylabel')
     .attr('x', (graphSpace.xScale.range()[1] * 3 + graphSpace.xScale(0)) / 4)
@@ -170,7 +170,7 @@ function BarChart(svg: SVGSVGElement | null, data: Data, graphSpace: GraphSpace,
 
   graph
     .selectAll('text.handlabel')
-    .data(["Hand Vectorized Spedup"])
+    .data(["Hand Vectorized Speedup"])
     .join('text')
     .attr('class', 'ylabel')
     .attr('x', (graphSpace.xScale.range()[0] * 3 + graphSpace.xScale(0)) / 4)
