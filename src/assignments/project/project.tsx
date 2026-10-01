@@ -212,7 +212,7 @@ interface Instance {
   scalar_cpu_time: number;
 }
 
-const ROOT_URL = `${import.meta.env.BASE_URL}/results/demangled/run2`;
+const ROOT_URL = `${import.meta.env.BASE_URL}data/demangled/run2`;
 const OP_CLASSES = {
   'Core': ["Core", {
     'bench_boolean_ops': "Boolean Ops",
