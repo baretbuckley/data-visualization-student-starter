@@ -2,13 +2,11 @@ import { useEffect, useMemo, useState, useRef } from 'react';
 import * as d3 from "d3";
 // import { select } from 'd3-selection';
 import { csvParse } from 'd3-dsv';
-import { scaleLinear, type ScaleLinear } from 'd3-scale';
 // import { scaleBand, scaleLinear } from 'd3-scale';
 // import { max } from 'd3-array';
 import { select } from 'd3-selection';
 import { useDimensions } from './useDimensions';
-// import { min } from 'd3';
-import { hexbin } from 'd3-hexbin';
+// import { min } from 'd3';;
 
 // import { keys } from 'ts-transformer-keys';
 
@@ -35,12 +33,6 @@ interface Margin {
 }
 
 
-// Interactive mouse tool tip
-interface ToolTip {
-  pos: [number, number];
-  value: [number, number];
-  numStudents: number;
-}
 
 
 
@@ -49,14 +41,6 @@ interface ToolTip {
 const DATA_URL = `${import.meta.env.BASE_URL}puzzle_stacks.csv`;
 
 
-
-function shuffleArray<T>(array: T[]): T[] {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
 
 interface GraphSpace {
   dimensions: Dimensions;
@@ -109,15 +93,10 @@ function radialFlameGraph(svg: SVGSVGElement | null, data: DataDescription[], ba
   }, [0, {}] as [number, {[key:string]:string}])[1];
 
   const dimensions = graphSpace.dimensions
-  const margin = graphSpace.margin
 
   const radius = dimensions.width / 2;
   const width = dimensions.width;
 
-
-  // const element = svgSel.node() ?? svg;
-  var curSequence = { sequence: [], percentage: 0.0 };
-  console.log(data);
 
   const maxDepth = Math.max(...data.map(d => d.depth));
 
@@ -206,14 +185,13 @@ function radialFlameGraph(svg: SVGSVGElement | null, data: DataDescription[], ba
     .on("mouseleave", () => {
       path.attr("fill-opacity", 1);
       label.style("visibility", "hidden");
-      curSequence = {sequence: [], percentage:0.0};
       setSelectPath([]);
     })
     .selectAll("path")
     .data(data)
     .join("path")
     .attr("d", mousearc)
-    .on("mouseenter", (event, d) =>{
+    .on("mouseenter", d =>{
       const sequence = getFramePath(d.fnCall);
       setSelectPath(sequence.map(name => {return {name: name, color: select_colors[name]}}));
       path.attr("fill-opacity", node => {
@@ -241,7 +219,7 @@ function radialFlameGraph(svg: SVGSVGElement | null, data: DataDescription[], ba
         .select(".total-percentage")
         .text(total_percentage + "% of total program execution");
     })
-    .on("click", (event, d) => {
+    .on("click", d => {
       setWorkingPath(getFramePath(d.fnCall));
     });
 
