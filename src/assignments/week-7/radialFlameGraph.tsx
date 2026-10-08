@@ -191,7 +191,7 @@ function radialFlameGraph(svg: SVGSVGElement | null, data: DataDescription[], ba
     .data(data)
     .join("path")
     .attr("d", mousearc)
-    .on("mouseenter", d =>{
+    .on("mouseenter", (_event, d) =>{
       const sequence = getFramePath(d.fnCall);
       setSelectPath(sequence.map(name => {return {name: name, color: select_colors[name]}}));
       path.attr("fill-opacity", node => {
@@ -219,7 +219,7 @@ function radialFlameGraph(svg: SVGSVGElement | null, data: DataDescription[], ba
         .select(".total-percentage")
         .text(total_percentage + "% of total program execution");
     })
-    .on("click", d => {
+    .on("click", (_event, d) => {
       setWorkingPath(getFramePath(d.fnCall));
     });
 
