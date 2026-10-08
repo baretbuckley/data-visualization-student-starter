@@ -438,25 +438,25 @@ export function radialFlame() {
 
         <div className="flex shrink-0 flex-row gap-2 bg-gray-200 p-2 text-left font-bold w-full">
           {workingPath.length >= 10 && <div className="flex flex-row gap-1">
-            <button
+            <button 
               // className="rounded bg-gray-300 px-2 py-1 text-sm font-bold hover:bg-gray-400"
             >
-              • • •
+              <span style={{whiteSpace: "nowrap"}}>• • •</span>
             </button>
             {/* {(index + workingPath.length-9) < workingPath.length - 1 && <span className="text-gray-500"></span>} */}
           </div>}
 
-          {((workingPath.length < 10)? workingPath : workingPath.slice(-10)).map((path, index) => (
+          {((workingPath.length < 8)? workingPath : workingPath.slice(-8)).map((path, index) => (
             <div key={index + workingPath.length-9} className="flex flex-row gap-0">
               <button
                 className="rounded bg-gray-300 px-2 py-1 text-sm font-bold hover:bg-gray-400"
                 onClick={() => {
-                  setWorkingPath(workingPath.slice(0, (workingPath.length < 10)? index+1 : index + workingPath.length-9));
+                  setWorkingPath(workingPath.slice(0, (workingPath.length < 8)? index+1 : index + workingPath.length-9));
                 }}
               >
                 {path}
               </button>
-              {(index + workingPath.length-9) < workingPath.length - 1 && <span className="text-gray-500"></span>}
+              {(index + workingPath.length-7) < workingPath.length - 1 && <span className="text-gray-500"></span>}
             </div>
           )) }
         </div>
@@ -469,7 +469,7 @@ export function radialFlame() {
           </div>
           
           {hoverPath.slice(workingPath.length).length >= 10 && <div className="flex flex-row gap-1">
-            <span>
+            <span className="unbreakable" style={{whiteSpace: "nowrap"}}>
               • • •
             </span>
             {/* {(index + workingPath.length-9) < workingPath.length - 1 && <span className="text-gray-500"></span>} */}
