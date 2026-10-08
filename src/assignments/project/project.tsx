@@ -569,21 +569,6 @@ export function project() {
             </div>
           ))}
         </div>
-        {/* <div className="flex shrink-0 flex-row gap-2">
-          <button
-            className="rounded bg-gray-300 px-2 py-1 text-sm font-bold hover:bg-gray-400"
-            onClick={() => {
-              setWorkingPath([]);
-            }}
-          >
-            All
-          </button>
-        </div>
-        <div className="relative flex shrink-0 flex-row gap-2">
-          div className="absolute top-0 left-0 w-full bg-gray-200 p-2 text-left font-bold">
-            {["All", ...workingPath].join(' > ')}
-          </div>
-        </div> */}
 
 
         <div className='relative flex h-full w-full flex-row'>

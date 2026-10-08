@@ -5,6 +5,7 @@ import { FirstVisualization } from './week-03/FirstVisualization';
 import { RevisedVisualization } from './week-04/RevisedVis';
 import { InteractiveVis } from './week-05/InteractiveVis';
 import { project } from './project/project';
+import { radialFlame } from './week-7/radialFlameGraph';
 
 
 
@@ -44,6 +45,11 @@ export const assignments: Assignment[] = [
     id: '6',
     name: 'Final Project',
     component: project,
+  },
+  {
+    id: '7',
+    name: 'Week 7',
+    component: radialFlame,
   },
 ];
 
