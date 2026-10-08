@@ -93,9 +93,10 @@ function radialFlameGraph(svg: SVGSVGElement | null, data: DataDescription[], ba
   }, [0, {}] as [number, {[key:string]:string}])[1];
 
   const dimensions = graphSpace.dimensions
+  const margin = graphSpace.margin;
 
-  const radius = dimensions.width / 2;
-  const width = dimensions.width;
+  const radius = (Math.min(dimensions.width, dimensions.height-margin.top)) / 2;
+  const width = radius*2;
 
 
   const maxDepth = Math.max(...data.map(d => d.depth));
@@ -104,7 +105,7 @@ function radialFlameGraph(svg: SVGSVGElement | null, data: DataDescription[], ba
   const maxRad = radius;
   const domain = [0, maxDepth]
   function scaleRad(val: number): number {
-    if (val > maxDepth) console.log("Val greater than max depth: ", val);
+    if (val < 0) console.log("Val less than 0 depth: ", val);
     return ((val - domain[0]) / (domain[1]-domain[0])) * (maxRad-minRad) + minRad;
   }
 
@@ -377,7 +378,7 @@ export function radialFlame() {
     const workingRoot = indexWithPath(callFrames, workingPath);
     console.log(callFrames);
     if (workingRoot == null) setDisplayData([null, []]);
-    else setDisplayData([workingRoot, getDataPoints(workingRoot, [-Math.PI, Math.PI], 100, 0)]);
+    else setDisplayData([workingRoot, getDataPoints(workingRoot, [-Math.PI, Math.PI], 100, 1)]);
   }, [callFrames, workingPath])
 
 
@@ -389,14 +390,14 @@ export function radialFlame() {
   // Get graph dimensions and aspects -----------------------------------------
   const svg_dim: Dimensions = useMemo(() => {
     return {
-      width: dimensions.width / 2,
-      height: Math.min(dimensions.height, dimensions.width/2),
+      width: dimensions.width,
+      height: dimensions.height,
     }
   }, [dimensions]);
 
   const graphSpace: GraphSpace = useMemo(() => {
       
-    const margin = { top: 20, right: 30, bottom: 50, left: 50 };
+    const margin = { top: 0, right: 0, bottom: 0, left: 0 };
 
     return {
       dimensions: svg_dim,
