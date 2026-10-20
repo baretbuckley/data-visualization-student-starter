@@ -59,8 +59,231 @@ interface GraphSpace {
   yScale: ScaleBand<string>;
 }
 
+interface LineGraphSpace {
+  dimensions: Dimensions;
+  margin: Margin;
+  xScale: ScaleLinear<number, number, never>;
+  yScale: ScaleLinear<number, number, never>;
+}
+
+interface Instance {
+  type: string;
+  size: number;
+  hand_vectorized_cpu_time: number;
+  llvm_auto_cpu_time: number;
+  scalar_cpu_time: number;
+}
+
+const ROOT_URL = `${import.meta.env.BASE_URL}data`;
+const OP_CLASSES = {
+  'Core': ["Core", {
+    'bench_boolean_ops': "Boolean Ops",
+    'bench_broadcasting': "Matrix Broadcasting",
+    'bench_gemm': "Matrix Mult (GEMM)",
+  }],
+  'LU': ["LU", {
+    'bench_lu': "LU Decomposition",
+  }],
+  'Eigen Values': ["Eigenvalues", {
+    'bench_geev': "Eigen Solver",
+  }],
+}
+
+interface Entry {
+  name: string;
+  results: Result;
+  data: Instance[];
+}
+
+interface EntryGroup {
+  name: string;
+  results: Result;
+  children: Entry[];
+}
+
+interface OpClass {
+  name: string;
+  results: Result;
+  children: (EntryGroup | Entry)[];
+}
 
 
+
+
+function LineGraph(svg: SVGSVGElement | null, data: Entry, graphSpace: LineGraphSpace) {
+  const svgSel = select(svg);
+  svgSel.selectAll('*').remove();
+
+  const graph = svgSel.append('g').attr('transform', `translate(${graphSpace.margin.left},${graphSpace.margin.top})`);
+
+  const aggregateBySize = new Map<number, { hand: number[]; auto: number[] }>();
+
+  for (const instance of data.data) {
+    const current = aggregateBySize.get(instance.size) ?? { hand: [], auto: [] };
+    current.hand.push(instance.scalar_cpu_time / (instance.hand_vectorized_cpu_time || 1));
+    current.auto.push(instance.scalar_cpu_time / (instance.llvm_auto_cpu_time || 1));
+    aggregateBySize.set(instance.size, current);
+  }
+
+  const points = Array.from(aggregateBySize.entries())
+    .map(([size, values]) => ({
+      size,
+      hand: d3.mean(values.hand) ?? 0,
+      auto: -(d3.mean(values.auto) ?? 0),
+    }))
+    .sort((a, b) => a.size - b.size);
+
+  const plotWidth = graphSpace.dimensions.width - graphSpace.margin.left - graphSpace.margin.right;
+  const plotHeight = graphSpace.dimensions.height - graphSpace.margin.top - graphSpace.margin.bottom;
+
+  const zeroY = graphSpace.yScale(0);
+
+  // Background grid
+  graph
+    .append('g')
+    .selectAll('line.grid')
+    .data(graphSpace.yScale.ticks(6))
+    .join('line')
+    .attr('class', 'grid')
+    .attr('x1', 0)
+    .attr('x2', plotWidth)
+    .attr('y1', (d) => graphSpace.yScale(d))
+    .attr('y2', (d) => graphSpace.yScale(d))
+    .attr('stroke', '#d1d5db')
+    .attr('stroke-dasharray', '4 4');
+
+  // Zero reference line
+  graph
+    .append('line')
+    .attr('x1', 0)
+    .attr('x2', plotWidth)
+    .attr('y1', zeroY)
+    .attr('y2', zeroY)
+    .attr('stroke', '#374151')
+    .attr('stroke-width', 1.5);
+
+  // X axis
+  // graph
+  //   .append('g')
+  //   .attr('transform', `translate(0, ${zeroY})`)
+  //   .call(
+  //     d3
+  //       .axisBottom(graphSpace.xScale)
+  //       .ticks(6)
+  //       .tickFormat((d: number | Date) => {
+  //         const value = d as number;
+  //         return value.toLocaleString();
+  //       })
+  //   )
+  //   .call((g) => g.select('.domain').attr('stroke', '#374151'))
+  //   .call((g) => g.selectAll('.tick line').attr('stroke', '#374151'))
+  //   .call((g) => g.selectAll('.tick text').attr('font-size', 11));
+
+  // Y axis
+  // graph
+  //   .append('g')
+  //   .call(
+  //     d3
+  //       .axisLeft(graphSpace.yScale)
+  //       .ticks(6)
+  //       .tickFormat((d: number | Date) => {
+  //         const value = Math.abs(d as number);
+  //         return `${value.toFixed(1)}x`;
+  //       })
+  //   )
+  //   .call((g) => g.select('.domain').attr('stroke', '#374151'))
+  //   .call((g) => g.selectAll('.tick line').attr('stroke', '#374151'))
+  //   .call((g) => g.selectAll('.tick text').attr('font-size', 11));
+
+  // X-axis label
+  graph
+    .append('text')
+    .attr('x', plotWidth / 2)
+    .attr('y', plotHeight + 40)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', 12)
+    .attr('font-weight', 'bold')
+    .text('Size');
+
+  // Y-axis label
+  graph
+    .append('text')
+    .attr('transform', `translate(${-40}, ${plotHeight / 2}) rotate(-90)`)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', 12)
+    .attr('font-weight', 'bold')
+    .text('Speedup vs Scalar');
+
+  // Positive/negative legend
+  graph
+    .append('text')
+    .attr('x', plotWidth * 0.25)
+    .attr('y', -8)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', 11)
+    .attr('fill', '#da2c2c')
+    .text('Hand Vectorized');
+
+  graph
+    .append('text')
+    .attr('x', plotWidth * 0.75)
+    .attr('y', -8)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', 11)
+    .attr('fill', '#7c2626')
+    .text('Auto Vectorized');
+
+  const handLine = d3
+    .line<{ size: number; hand: number }>()
+    .x((d) => graphSpace.xScale(d.size))
+    .y((d) => graphSpace.yScale(d.hand))
+    .curve(d3.curveMonotoneX);
+
+  const autoLine = d3
+    .line<{ size: number; auto: number }>()
+    .x((d) => graphSpace.xScale(d.size))
+    .y((d) => graphSpace.yScale(d.auto))
+    .curve(d3.curveMonotoneX);
+
+  graph
+    .append('path')
+    .datum(points.map((p) => ({ size: p.size, hand: p.hand })))
+    .attr('fill', 'none')
+    .attr('stroke', '#da2c2c')
+    .attr('stroke-width', 2.5)
+    .attr('d', handLine);
+
+  graph
+    .append('path')
+    .datum(points.map((p) => ({ size: p.size, auto: p.auto })))
+    .attr('fill', 'none')
+    .attr('stroke', '#7c2626')
+    .attr('stroke-width', 2.5)
+    .attr('d', autoLine);
+
+  // Points
+  graph
+    .append('g')
+    .selectAll('circle.hand-point')
+    .data(points)
+    .join('circle')
+    .attr('class', 'hand-point')
+    .attr('cx', (d) => graphSpace.xScale(d.size))
+    .attr('cy', (d) => graphSpace.yScale(d.hand))
+    .attr('r', 4)
+    .attr('fill', '#da2c2c');
+
+  graph
+    .append('g')
+    .selectAll('circle.auto-point')
+    .data(points)
+    .join('circle')
+    .attr('class', 'auto-point')
+    .attr('cx', (d) => graphSpace.xScale(d.size))
+    .attr('cy', (d) => graphSpace.yScale(d.auto))
+    .attr('r', 4)
+    .attr('fill', '#7c2626');
+}
 
 
 type Data = { [cat: string]: Result; };
@@ -230,40 +453,7 @@ function BarChart(svg: SVGSVGElement | null, data: Data, graphSpace: GraphSpace,
 //   by_type: {[type: string]: number[]},
 // };
 
-interface Instance {
-  name: string;
-  type: string;
-  hand_vectorized_cpu_time: number;
-  llvm_auto_cpu_time: number;
-  scalar_cpu_time: number;
-}
 
-const ROOT_URL = `${import.meta.env.BASE_URL}data`;
-const OP_CLASSES = {
-  'Core': ["Core", {
-    'bench_boolean_ops': "Boolean Ops",
-    'bench_broadcasting': "Matrix Broadcasting",
-    'bench_gemm': "Matrix Mult (GEMM)",
-  }]
-}
-
-interface Entry {
-  name: string;
-  results: Result;
-  data: Instance[];
-}
-
-interface EntryGroup {
-  name: string;
-  results: Result;
-  children: Entry[];
-}
-
-interface OpClass {
-  name: string;
-  results: Result;
-  children: (EntryGroup | Entry)[];
-}
 
 function updateEntryResults(entry: Entry) {
   const combinedResult: Result = {
@@ -359,6 +549,10 @@ export function ProjectIteration() {
   const [toolTip, setToolTip] = useState<ToolTip | null>(null);
 
   const [workingPath, setWorkingPath] = useState<string[]>([]);
+  const [useLineChart, setUseLineChart] = useState<boolean>(false);
+  const [selectEntry, setSelectEntry] = useState<Entry | null>(null);
+
+
   // const [terminal, setUseScatter] = useState<boolean>(false);
 
 
@@ -397,8 +591,8 @@ export function ProjectIteration() {
                   }
 
                   byOperation.get(operationName)!.push({
-                    name: row.name,
                     type: row.type,
+                    size: parseInt(row.size),
                     hand_vectorized_cpu_time: parseFloat(row.hand_vectorized_cpu_time),
                     llvm_auto_cpu_time: parseFloat(row.llvm_auto_cpu_time),
                     scalar_cpu_time: parseFloat(row.scalar_cpu_time),
@@ -497,7 +691,30 @@ export function ProjectIteration() {
     });
   }, [opClasses, workingPath]);
 
-
+  useEffect(() => {
+    console.log("seting entry");
+    if (!useLineChart || !opClasses) {
+      setSelectEntry(null);
+      return;
+    }
+    if (workingPath.length < 3) {
+      setSelectEntry(null);
+      return;
+    }
+    const opClass = opClasses.find((oc) => oc.name === workingPath[0]);
+    if (!opClass) {
+      setSelectEntry(null);
+      return;
+    }
+    const opGroup = (opClass.children as EntryGroup[]).find((og) => og.name === workingPath[1]);
+    if (!opGroup) {
+      setSelectEntry(null);
+      return;
+    }
+    const entry = opGroup.children.find((oc) => oc.name === workingPath[2]) ?? null;
+    console.log("set entry:", entry);
+    setSelectEntry(entry);
+  }, [opClasses, useLineChart, workingPath]);
 
 
   // Get graph dimensions and aspects -----------------------------------------
@@ -516,14 +733,11 @@ export function ProjectIteration() {
     }
   }, [dimensions, svg_dim]);
 
-  const graphSpace: GraphSpace = useMemo(() => {
-
+  const barChartSpace: GraphSpace = useMemo(() => {
     const margin = { top: 50, right: 5, bottom: 50, left: 200 };
-
     const yScale = scaleBand()
       .domain(Object.keys(data))
       .range([0, svg_dim.height - margin.bottom - margin.top]);
-
     var handMax = (d3.max(Object.values(data), (d) => d.handVect) ?? 0);
     var autoMax = d3.max(Object.values(data), (d) => d.autoVect) ?? 0;
     if (autoMax < handMax / 3) {
@@ -541,26 +755,83 @@ export function ProjectIteration() {
     };
   }, [svg_dim, data]);
 
+  const LineGraphSpace: LineGraphSpace = useMemo(() => {
+    const margin = { top: 50, right: 5, bottom: 50, left: 50 };
+    if (selectEntry === null) {
+      const default_scale = scaleLinear()
+        .domain([0, 1])
+        .range([0, 0]);
+      return {
+        dimensions: svg_dim,
+        margin: margin,
+        xScale: default_scale,
+        yScale: default_scale,
+      };
+    }
+    var handMax = (d3.max(selectEntry.data, (d) => d.hand_vectorized_cpu_time) ?? 0);
+    var autoMax = (d3.max(selectEntry.data, (d) => d.llvm_auto_cpu_time) ?? 0);
+    if (autoMax < handMax / 3) {
+      autoMax = handMax / 3;
+    }
+    // const yScale = scaleBand()
+    //   .domain(Object.keys(data))
+    //   .range([0, svg_dim.height - margin.bottom - margin.top]);
+    const yScale = scaleLinear()
+      .domain([-(autoMax), (handMax)])
+      .range([svg_dim.height - margin.top - margin.left, 0]);
+    
+    var maxSize = (d3.max(selectEntry.data, (d) => d.size) ?? 0);
+    var minSize = (d3.min(selectEntry.data, (d) => d.size) ?? 0);
+
+    const xScale = scaleLinear()
+      .domain([minSize, maxSize])
+      .range([0, svg_dim.width - margin.right - margin.left]);
+
+    return {
+      dimensions: svg_dim,
+      margin: margin,
+      xScale: xScale,
+      yScale: yScale,
+    };
+  }, [svg_dim, selectEntry]);
 
 
-
-
+  // Bar chart
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg || svg_dim.width === 0 || svg_dim.height === 0) return;
-
-    BarChart(svg, data, graphSpace, toolTip ? toolTip.operation : '', setToolTip, (operation) => {
+    if (useLineChart) return;
+    console.log("using bar chart");
+    BarChart(svg, data, barChartSpace, toolTip ? toolTip.operation : '', setToolTip, (operation) => {
       setWorkingPath((prevPath) => {
         if (prevPath.length === 0) {
           return [operation];
         } else if (prevPath.length === 1) {
           return [prevPath[0], operation];
         } else {
-          return prevPath;
+          setUseLineChart(true);
+          return [prevPath[0], prevPath[1], operation];
         }
       });
     });
-  }, [svg_dim, graphSpace, data]);
+  }, [svg_dim, barChartSpace, data, useLineChart]);
+
+  // Line chart
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg || svg_dim.width === 0 || svg_dim.height === 0) return;
+    if (!useLineChart) return;
+    if (opClasses === null) return;
+
+    const opClass = opClasses.find((oc) => oc.name === workingPath[0]);
+    if (!opClass) return;
+    const opGroup = (opClass.children as EntryGroup[]).find((og) => og.name === workingPath[1]);
+    if (!opGroup) return;
+    const entry = opGroup.children.find((oc) => oc.name === workingPath[2]);
+    if (!entry) return;
+    console.log("Creating line chart");
+    LineGraph(svg, entry, LineGraphSpace);
+  }, [useLineChart, LineGraphSpace, opClasses, workingPath])
 
   return (
 
@@ -575,10 +846,11 @@ export function ProjectIteration() {
           <p>Performance Ratio Against Non Vectorized Code</p>
         </header>
 
-        <div className="flex shrink-0 flex-row gap-2 bg-gray-200 p-2 text-left font-bold w-full">
+        <div className="flex shrink-0 flex-row gap-0 bg-gray-200 p-2 text-left font-bold w-full">
           <div key="All" className="flex flex-row gap-1">
             <button
-              // className="rounded bg-gray-300 px-2 py-1 text-sm font-bold hover:bg-gray-400"
+              className="bg-gray-300 px-2 py-1 text-sm font-bold hover:bg-gray-400"
+              style={{borderLeft: "solid"}}
               onClick={() => {
                 setWorkingPath([]);
               }}
@@ -588,10 +860,12 @@ export function ProjectIteration() {
             {/* {index < workingPath.length - 1 && <span className="text-gray-500"></span>} */}
           </div>
           {workingPath.map((path, index) => (
-            <div key={index} className="flex flex-row gap-1">
+            <div key={index} className="flex flex-row gap-0">
               <button
-                // className="rounded bg-gray-300 px-2 py-1 text-sm font-bold hover:bg-gray-400"
+                className="bg-gray-300 px-2 py-1 text-sm font-bold hover:bg-gray-400"
+                style={{borderLeft: "solid"}}
                 onClick={() => {
+                  if (index < 2) setUseLineChart(false);
                   setWorkingPath(workingPath.slice(0, index + 1));
                 }}
               >

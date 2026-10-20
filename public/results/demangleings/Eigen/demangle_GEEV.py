@@ -20,7 +20,7 @@ src_major_path = "combined"
 dest_major_path = "demangled"
 
 sub_dir = "run2"
-minor_path = "EigenValues/bench_geev.csv"
+minor_path = "Eigenvalues/bench_geev.csv"
 
 
 

@@ -33,4 +33,4 @@ def combineRemove(minor: str, src: str, dest: str):
 
 
 combineRemove('Core', 'bench_gemm_double.csv', 'bench_gemm.csv')
-combineRemove('EigenValues', 'bench_geev_float.csv', 'bench_geev.csv')
+combineRemove('Eigenvalues', 'bench_geev_float.csv', 'bench_geev.csv')
