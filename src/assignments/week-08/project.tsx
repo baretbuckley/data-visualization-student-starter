@@ -194,16 +194,16 @@ function LineGraph(svg: SVGSVGElement | null, data: Entry, graphSpace: LineGraph
   const xAxis = d3
     .axisBottom(graphSpace.xScale)
     .ticks(6)
-    .tickFormat((d: number | Date) => {
-      const value = d as number;
+    .tickFormat((d: d3.NumberValue, _index: number) => {
+      const value = Number(d);
       return value.toLocaleString();
     });
 
   const yAxis = d3
     .axisLeft(graphSpace.yScale)
     .ticks(6)
-    .tickFormat((d: number | Date) => {
-      const value = Math.abs(d as number);
+    .tickFormat((d: d3.NumberValue) => {
+      const value = Math.abs(Number(d));
       return `${value.toFixed(1)}x`;
     });
 
