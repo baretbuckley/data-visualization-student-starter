@@ -191,19 +191,27 @@ function LineGraph(svg: SVGSVGElement | null, data: Entry, graphSpace: LineGraph
     .attr('stroke', '#000000')
     .attr('stroke-width', 1.5);
 
+  const xAxis = d3
+    .axisBottom(graphSpace.xScale)
+    .ticks(6)
+    .tickFormat((d: number | Date) => {
+      const value = d as number;
+      return value.toLocaleString();
+    });
+
+  const yAxis = d3
+    .axisLeft(graphSpace.yScale)
+    .ticks(6)
+    .tickFormat((d: number | Date) => {
+      const value = Math.abs(d as number);
+      return `${value.toFixed(1)}x`;
+    });
+
   // X axis
   graph
     .append('g')
     .attr('transform', `translate(0, ${graphSpace.yScale.range()[0]})`)
-    .call(
-      d3
-        .axisBottom(graphSpace.xScale)
-        .ticks(6)
-        .tickFormat((d: number | Date) => {
-          const value = d as number;
-          return value.toLocaleString();
-        })
-    )
+    .call((g) => xAxis(g))
     .call((g) => g.select('.domain').attr('stroke', '#374151'))
     .call((g) => g.selectAll('.tick line').attr('stroke', '#374151'))
     .call((g) => g.selectAll('.tick text').attr('font-size', 11));
@@ -211,15 +219,7 @@ function LineGraph(svg: SVGSVGElement | null, data: Entry, graphSpace: LineGraph
   // Y axis
   graph
     .append('g')
-    .call(
-      d3
-        .axisLeft(graphSpace.yScale)
-        .ticks(6)
-        .tickFormat((d: number | Date) => {
-          const value = Math.abs(d as number);
-          return `${value.toFixed(1)}x`;
-        })
-    )
+    .call((g) => yAxis(g))
     .call((g) => g.select('.domain').attr('stroke', '#374151'))
     .call((g) => g.selectAll('.tick line').attr('stroke', '#374151'))
     .call((g) => g.selectAll('.tick text').attr('font-size', 11));
@@ -913,10 +913,11 @@ export function ProjectIteration() {
       <div className="flex flex-col gap-0 p-0 w-full">
 
         {/* Header showing current path in data */}
-        <header className="w8-header">
+        <header className="w8-header p-2">
+          {/* text-3xl font-bold mb-2 */}
+          <h1 className="text-2xl">Performance Ratio of Hand- and Auto-Vectorized Against Scalar Code</h1>
           <p className="w8-eyebrow">Comparison of Vectorization on the Eigen Library Benchmark</p>
-          <h1>Performance Ratio of Hand- and Auto-Vectorized Against Non-Vectorized</h1>
-          <p>Performance Ratio Against Non Vectorized Code</p>
+          {/* <p>Performance Ratio Against Non Vectorized Code</p> */}
         </header>
 
         <div className="flex shrink-0 flex-row gap-0 bg-gray-300 p-0 text-left font-bold w-full">
