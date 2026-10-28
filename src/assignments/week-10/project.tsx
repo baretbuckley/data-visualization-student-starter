@@ -13,6 +13,8 @@ import type { BarChartData, BarToolTip } from './barChart';
 import { BarChart } from './barChart';
 import { LineGraph, type LineGraphData, type LineToolTip } from './lineGraph';
 import type { BarChartSpace, LineGraphSpace, Dimensions } from './graphSpace';
+import { workingPathHeader } from './workingPathHeader';
+import { infoButton } from './helpMenue';
 
 
 
@@ -67,6 +69,7 @@ export function ProjectAddedInteraction() {
   const [useLineChart, setUseLineChart] = useState<boolean>(false);
   const [selectEntry, setSelectEntry] = useState<Data.Entry | null>(null);
 
+  const [helpMenuePressed, setHelpMenuePressed] = useState<boolean>(false)
 
   // const [terminal, setUseScatter] = useState<boolean>(false);
   useEffect(() => {
@@ -373,47 +376,53 @@ export function ProjectAddedInteraction() {
 
   return (
 
-    <div ref={divRef} className="relative flex h-full w-full flex-row shaded-box">
+    <div ref={divRef} className="relative h-full w-full shaded-box">
 
+      {helpMenuePressed && (
+        <div
+          className="absolute left-1/2 top-20 z-20 w-[min(28rem,calc(100%-2rem))] -translate-x-1/2 rounded bg-gray-300 p-4 shadow-2xl"
+        >
+          <div className="mb-2 flex items-center justify-between">
+            <strong>Help</strong>
+            <button
+              type="button"
+              onClick={() => setHelpMenuePressed(false)}
+              className="rounded bg-gray-200 px-2 py-1 text-sm"
+              aria-label="Close help menu"
+            >
+              ×
+            </button>
+          </div>
+          <div className="text-sm">
+            <p>Use the bar chart to explore operations.</p>
+            <p>Select a bar to drill down into groups and entries.</p>
+            <p>When the line chart is displayed, hover or click points for details.</p>
+          </div>
+        </div>
+      )}
+      
       <div className="flex flex-col gap-0 p-0 w-full">
 
-        {/* Header showing current path in data */}
-        <header className="w8-header p-2">
-          {/* text-3xl font-bold mb-2 */}
-          <h1 className="text-2xl">Performance Ratio of Hand- and Auto-Vectorized Against Scalar Code</h1>
-          <p className="w8-eyebrow">Comparison of Vectorization on the Eigen Library Benchmark</p>
-          {/* <p>Performance Ratio Against Non Vectorized Code</p> */}
-        </header>
+        <div className="relative flex h-fit w-full flex-row">
+          <header className="w8-header p-2">
+            <h1 className="text-2xl">Performance Ratio of Hand- and Auto-Vectorized Against Scalar Code</h1>
+            <p className="w8-eyebrow">Comparison of Vectorization on the Eigen Library Benchmark</p>
+          </header>
 
-        <div className="flex shrink-0 flex-row gap-0 bg-gray-300 p-0 text-left font-bold w-full">
-          <div key="All" className="flex flex-row gap-1">
-            <button
-              className="bg-gray-300 px-2 py-1 text-sm font-bold hover:bg-gray-400"
-              style={{borderLeft: "solid"}}
-              onClick={() => {
-                setWorkingPath([]);
-              }}
-            >
-              {"All"}
-            </button>
-            {/* {index < workingPath.length - 1 && <span className="text-gray-500"></span>} */}
+          <div className="flex w-full"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'right',
+            paddingRight: 45
+          }}>
+            {infoButton(45, helpMenuePressed, () => {setHelpMenuePressed(!helpMenuePressed)})}
           </div>
-          {workingPath.map((path, index) => (
-            <div key={index} className="flex flex-row gap-0">
-              <button
-                className="bg-gray-300 px-2 py-1 text-sm font-bold hover:bg-gray-400"
-                style={{borderLeft: "solid"}}
-                onClick={() => {
-                  setWorkingPath(workingPath.slice(0, index + 1));
-                }}
-              >
-                {path}
-              </button>
-              {index < workingPath.length - 1 && <span className="text-gray-500"></span>}
-            </div>
-          ))}
         </div>
+        
 
+        {/* Header showing current path in data */}
+        {workingPathHeader(workingPath, setWorkingPath)}
         
 
 
