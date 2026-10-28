@@ -10,6 +10,44 @@ export interface BarToolTip {
   result: ResultRatio;
 }
 
+interface SplitLine {
+  fullString: string,
+  index: number,
+  totalLines: number,
+  subString: string,
+}
+
+function toSplitLine(str: string): SplitLine {
+  return {
+    fullString: str,
+    index: 0,
+    totalLines: 1,
+    subString: str,
+  };
+}
+
+function formatName(name: string): SplitLine[] {
+  if (name.length < 10) return [toSplitLine(name)];
+  const lparen = name.indexOf('(')
+  if (lparen == -1) return [toSplitLine(name)];
+  return [
+    {
+      fullString: name,
+      index: 0,
+      totalLines: 2,
+      subString: name.slice(0, lparen),
+    },
+    {
+      fullString: name,
+      index: 1,
+      totalLines: 2,
+      subString: name.slice(lparen),
+    }
+  ];
+}
+
+
+
 export function BarChart(svg: SVGSVGElement | null, data: BarChartData, graphSpace: BarChartSpace, selected: string, onHover?: (toolTip: BarToolTip | null) => void, onDblClick?: (operation: string) => void) {
 
   const svgSel = select(svg);
@@ -25,7 +63,6 @@ export function BarChart(svg: SVGSVGElement | null, data: BarChartData, graphSpa
 
   const xticks = graphSpace.xScale.ticks(Math.ceil(graphSpace.xScale.domain()[1] - graphSpace.xScale.domain()[0]));
   const tick_margin = 0.02*(graphSpace.yScale.range()[1] -graphSpace.yScale.range()[0] )
-  console.log(graphSpace.xScale.domain()[1], graphSpace.xScale.domain()[0])
   graph.append('g')
     .selectAll('line.grids')
     .data(xticks)
@@ -64,7 +101,7 @@ export function BarChart(svg: SVGSVGElement | null, data: BarChartData, graphSpa
     .attr('stroke', () => (true ? '#111827' : 'transparent'))
     .attr('stroke-width', 2)
     .on('mouseover', (_event, d) => {
-      if (onHover) {
+      if (onHover && selected != d[0]) {
         onHover({
           operation: d[0], 
           result: {
@@ -122,13 +159,15 @@ export function BarChart(svg: SVGSVGElement | null, data: BarChartData, graphSpa
 
   graph
     .selectAll('text.xlabel')
-    .data(Object.entries(data))
+    .data(Object.entries(data).reduce((prev: SplitLine[], curr: [string, ResultRatio]) => {
+      return [...prev, ...formatName(curr[0])]
+    }, [] as SplitLine[]))
     .join('text')
     .attr('class', 'xlabel')
     .attr('x', graphSpace.xScale.range()[0] - 40)
-    .attr('y', (d) => (graphSpace.yScale(d[0]) ?? 0) + graphSpace.yScale.bandwidth() / 2)
+    .attr('y', (d) => (graphSpace.yScale(d.fullString) ?? 0) + graphSpace.yScale.bandwidth() / 2 + ((d.totalLines == 2)? -7.5 + 15*d.index : 0))
     .attr('font-size', 15)
-    .text((d) => d[0])
+    .text((d) => d.subString)
     .attr('text-anchor', 'end')
     .attr('dominant-baseline', 'middle');
 

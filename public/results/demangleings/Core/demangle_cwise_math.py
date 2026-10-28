@@ -3,6 +3,7 @@ import csv
 import os
 import re
 from pathlib import Path
+import sys
 from typing import Any, Dict
 
 
@@ -19,7 +20,6 @@ from typing import Any, Dict
 src_major_path = "combined"
 dest_major_path = "demangled"
 
-sub_dir = "run2"
 minor_path = "Core/bench_cwise_math.csv"
 
 
@@ -55,7 +55,7 @@ POSTFIX_RULES = [
         "pattern": r"/size:(?P<size>\d+)/mode:(?P<mode>\d+)$",
         "pattern_names": ["size", "mode"],
         "columns": ["size", "mode"],
-        "mapping": None  # (pattern_names) => (columns)|None
+        "mapping": lambda matched: [matched[0], "ordinary inputs" if (matched[1] == "0") else "subnormal inputs" if (matched[1] == "1") else "one subnormal per 64 coefficients"],  # (pattern_names) => (columns)|None
     },
     {
         "name": "type",
@@ -211,11 +211,17 @@ def process_csv(input_path, output_path):
 
 def main():
     # Ensure the output directory exists
-    output_path = (Path(dest_major_path) / sub_dir / minor_path)
+    if (len(sys.argv) != 2):
+        print("ERROR: Please specify run directory")
+        return
+    run_dir = sys.argv[1]
+
+    # Ensure the output directory exists
+    output_path = (Path(dest_major_path) / run_dir / minor_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    input_path = Path(src_major_path) / sub_dir / minor_path
-    output_path = Path(dest_major_path) / sub_dir / minor_path
+    input_path = Path(src_major_path) / run_dir / minor_path
+    output_path = Path(dest_major_path) / run_dir / minor_path
 
     process_csv(input_path, output_path)
 

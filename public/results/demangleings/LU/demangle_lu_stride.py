@@ -3,6 +3,7 @@ import csv
 import os
 import re
 from pathlib import Path
+import sys
 from typing import Any, Dict
 
 
@@ -19,8 +20,7 @@ from typing import Any, Dict
 src_major_path = "combined"
 dest_major_path = "demangled"
 
-sub_dir = "run2"
-minor_path = "LU/bench_lu.csv"
+minor_path = "LU/bench_lu_stride.csv"
 
 
 
@@ -53,9 +53,9 @@ MAT_SIZE_RULE = {
 POSTFIX_RULES = [
     {
         "name": "matrix size and rhs size",
-        "pattern": r"/(?P<size>\d+)/(?P<rhs_size>\d+)$",
-        "pattern_names": ["size", "rhs_size"],
-        "columns": ["size", "rhs_size"],
+        "pattern": r"/(?P<size>\d+)/(?P<stride>\d+)$",
+        "pattern_names": ["size", "stride"],
+        "columns": ["size", "stride"],
         "mapping": None  # (pattern_names) => (columns)|None
     },
 
@@ -63,9 +63,9 @@ POSTFIX_RULES = [
 
     {
         "name": "Operation and Type description",
-        "pattern": r"_(?P<op_type>[^_]+)_(?P<type>[^_]+)$",
-        "pattern_names": ["op_type", "type"],
-        "columns": ["op_type", "type"],
+        "pattern": r"<(?P<type>[^_]+), (?P<direction>[^_]+)>$",
+        "pattern_names": ["type", "direction"],
+        "columns": ["type", "direction"],
         "mapping": None  # (pattern_names) => (columns)|None
     },
 ]
@@ -73,13 +73,12 @@ POSTFIX_RULES = [
 
 # Final mapping allowing for renaming of extracted columns.
 def map_row(row: Dict[str, Any]) -> Dict[str, Any]:
-    row["name"] = row["name"] + f" ({row['op_type']})"
-    row.pop("op_type", None)
+    row["name"] = row["name"][3:-6] + ' ('+ row["direction"] + ', stride: ' + row["stride"]+')'
     return row
 
 def map_column_names(columns: list[str]) -> list[str]:
     # add and remove columns as needed.
-    columns.remove("op_type")
+    # columns.remove("op_type")
     return columns
 
 def demangle_name(name: str) -> tuple[str, Dict[str, Any] | None]:
@@ -208,12 +207,17 @@ def process_csv(input_path, output_path):
 
 
 def main():
+    if (len(sys.argv) != 2):
+        print("ERROR: Please specify run directory")
+        return
+    run_dir = sys.argv[1]
+
     # Ensure the output directory exists
-    output_path = (Path(dest_major_path) / sub_dir / minor_path)
+    output_path = (Path(dest_major_path) / run_dir / minor_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    input_path = Path(src_major_path) / sub_dir / minor_path
-    output_path = Path(dest_major_path) / sub_dir / minor_path
+    input_path = Path(src_major_path) / run_dir / minor_path
+    output_path = Path(dest_major_path) / run_dir / minor_path
 
     process_csv(input_path, output_path)
 

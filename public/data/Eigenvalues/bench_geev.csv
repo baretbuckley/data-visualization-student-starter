@@ -1,37 +1,41 @@
 name,hand_vectorized_iterations,hand_vectorized_real_time,hand_vectorized_cpu_time,hand_vectorized_time_unit,llvm_auto_iterations,llvm_auto_real_time,llvm_auto_cpu_time,llvm_auto_time_unit,scalar_iterations,scalar_real_time,scalar_cpu_time,scalar_time_unit,size,type
-Eigen Solver,12482,54351.1,54261.7,ns,14706,47739.7,47679.9,ns,13263,48252.5,48190.2,ns,32,double
-Eigen Solver,397,1.70482e+06,1.7023e+06,ns,438,1.59555e+06,1.5935e+06,ns,436,1.60472e+06,1.60233e+06,ns,128,double
-Eigen Solver,59,1.19259e+07,1.19088e+07,ns,60,1.17207e+07,1.1706e+07,ns,58,1.18577e+07,1.18411e+07,ns,256,double
-Eigen Solver,55,1.2571e+07,1.25518e+07,ns,59,1.19726e+07,1.19513e+07,ns,58,1.21018e+07,1.20842e+07,ns,257,double
-Eigen Solver,8,8.34872e+07,8.3347e+07,ns,8,8.43641e+07,8.42191e+07,ns,8,8.45768e+07,8.44426e+07,ns,500,double
-Eigen Solver,7,1.00426e+08,1.00243e+08,ns,7,1.06094e+08,1.05848e+08,ns,7,1.06189e+08,1.06018e+08,ns,512,double
-Eigen Solver,2,3.37967e+08,3.37398e+08,ns,2,3.19702e+08,3.1901e+08,ns,2,3.25071e+08,3.24464e+08,ns,768,double
-Eigen Solver,1,6.85699e+08,6.84151e+08,ns,1,6.83139e+08,6.81601e+08,ns,1,6.76613e+08,6.75543e+08,ns,1000,double
-Eigen Solver,1,7.89033e+08,7.8733e+08,ns,1,8.05603e+08,8.0433e+08,ns,1,7.85521e+08,7.8433e+08,ns,1024,double
-Eigen Solver (with eigen vector),9501,74086.9,73966.3,ns,9962,70274.3,70172.2,ns,9952,70428.1,70334.6,ns,32,double
-Eigen Solver (with eigen vector),243,2.86253e+06,2.85676e+06,ns,251,2.7821e+06,2.77769e+06,ns,251,2.76984e+06,2.76632e+06,ns,128,double
-Eigen Solver (with eigen vector),34,2.08865e+07,2.08526e+07,ns,32,2.20426e+07,2.20054e+07,ns,32,2.22407e+07,2.22102e+07,ns,256,double
-Eigen Solver (with eigen vector),31,2.20957e+07,2.20683e+07,ns,32,2.16171e+07,2.15775e+07,ns,33,2.15274e+07,2.14979e+07,ns,257,double
-Eigen Solver (with eigen vector),5,1.49951e+08,1.49754e+08,ns,5,1.49883e+08,1.49566e+08,ns,5,1.48548e+08,1.48311e+08,ns,500,double
-Eigen Solver (with eigen vector),4,1.94574e+08,1.9423e+08,ns,3,2.16316e+08,2.15973e+08,ns,3,2.17427e+08,2.17062e+08,ns,512,double
-Eigen Solver (with eigen vector),1,6.15998e+08,6.15076e+08,ns,1,6.12539e+08,6.11287e+08,ns,1,6.09516e+08,6.0862e+08,ns,768,double
-Eigen Solver (with eigen vector),1,1.24441e+09,1.24256e+09,ns,1,1.20691e+09,1.20478e+09,ns,1,1.20328e+09,1.20121e+09,ns,1000,double
-Eigen Solver (with eigen vector),1,1.55958e+09,1.55704e+09,ns,1,1.6845e+09,1.6812e+09,ns,1,1.68073e+09,1.67774e+09,ns,1024,double
-Eigen Solver,17186,40802.5,40754.8,ns,19266,36358.1,36315.2,ns,19339,36195,36149,ns,32,float
-Eigen Solver,582,1.20383e+06,1.20234e+06,ns,585,1.19144e+06,1.19e+06,ns,596,1.17418e+06,1.17263e+06,ns,128,float
-Eigen Solver,88,8.08434e+06,8.07366e+06,ns,85,8.24088e+06,8.22995e+06,ns,85,8.2312e+06,8.2192e+06,ns,256,float
-Eigen Solver,75,9.30952e+06,9.29929e+06,ns,84,8.28517e+06,8.2743e+06,ns,86,8.18912e+06,8.17646e+06,ns,257,float
-Eigen Solver,12,5.6566e+07,5.64942e+07,ns,14,5.10624e+07,5.09896e+07,ns,14,5.04563e+07,5.03747e+07,ns,500,float
-Eigen Solver,13,5.33352e+07,5.32668e+07,ns,12,6.10255e+07,6.09416e+07,ns,12,6.06954e+07,6.06093e+07,ns,512,float
-Eigen Solver,4,1.73868e+08,1.73575e+08,ns,4,1.92946e+08,1.92658e+08,ns,4,1.93304e+08,1.93027e+08,ns,768,float
-Eigen Solver,2,3.70975e+08,3.70437e+08,ns,2,3.37261e+08,3.36711e+08,ns,2,3.39453e+08,3.38956e+08,ns,1000,float
-Eigen Solver,1,7.6555e+08,7.64466e+08,ns,1,8.31324e+08,8.2944e+08,ns,1,8.39537e+08,8.37947e+08,ns,1024,float
-Eigen Solver (with eigen vector),12942,54067.9,54010.5,ns,13516,51850,51781.5,ns,13455,51991.9,51915.8,ns,32,float
-Eigen Solver (with eigen vector),389,1.79705e+06,1.7951e+06,ns,387,1.80332e+06,1.8009e+06,ns,389,1.79897e+06,1.79595e+06,ns,128,float
-Eigen Solver (with eigen vector),54,1.29057e+07,1.28894e+07,ns,52,1.34898e+07,1.34712e+07,ns,52,1.34359e+07,1.34148e+07,ns,256,float
-Eigen Solver (with eigen vector),49,1.42127e+07,1.41946e+07,ns,55,1.2804e+07,1.27879e+07,ns,55,1.28101e+07,1.27911e+07,ns,257,float
-Eigen Solver (with eigen vector),8,9.14478e+07,9.13204e+07,ns,9,8.05506e+07,8.04326e+07,ns,9,8.07293e+07,8.05967e+07,ns,500,float
-Eigen Solver (with eigen vector),7,9.73399e+07,9.71948e+07,ns,6,1.14123e+08,1.13935e+08,ns,6,1.13827e+08,1.13629e+08,ns,512,float
-Eigen Solver (with eigen vector),2,3.03242e+08,3.0277e+08,ns,2,3.42549e+08,3.41977e+08,ns,2,3.40553e+08,3.39875e+08,ns,768,float
-Eigen Solver (with eigen vector),1,6.15573e+08,6.1464e+08,ns,1,5.74547e+08,5.73631e+08,ns,1,5.73152e+08,5.71578e+08,ns,1000,float
-Eigen Solver (with eigen vector),1,1.21321e+09,1.21097e+09,ns,1,1.40308e+09,1.40096e+09,ns,1,1.41109e+09,1.40805e+09,ns,1024,float
+Eigen Solver,204969,3406.13,3400.77,ns,222966,3108.58,3105.22,ns,148187,4715.25,4709.89,ns,8,double
+Eigen Solver,59629,11824,11801.6,ns,67428,10357.6,10346.2,ns,34200,20462.7,20439.9,ns,16,double
+Eigen Solver,12667,55044.6,54942.8,ns,14791,47294.3,47242.2,ns,5748,121844,121698,ns,32,double
+Eigen Solver,2564,271366,270864,ns,2851,245623,245318,ns,887,788624,787694,ns,64,double
+Eigen Solver,409,1.70602e+06,1.7034e+06,ns,439,1.59714e+06,1.59525e+06,ns,118,5.93385e+06,5.927e+06,ns,128,double
+Eigen Solver,59,1.18968e+07,1.18735e+07,ns,61,1.13947e+07,1.13811e+07,ns,16,4.31068e+07,4.30572e+07,ns,256,double
+Eigen Solver,7,1.03029e+08,1.02825e+08,ns,7,1.06184e+08,1.0603e+08,ns,2,3.36737e+08,3.36138e+08,ns,512,double
+Eigen Solver,1,8.06058e+08,8.04677e+08,ns,1,8.21615e+08,8.20374e+08,ns,1,2.5599e+09,2.55547e+09,ns,1024,double
+Eigen Solver,1,6.89115e+09,6.87586e+09,ns,1,7.3954e+09,7.38205e+09,ns,1,3.3266e+10,3.31578e+10,ns,2048,double
+Eigen Solver,1,1.95594e+11,1.95112e+11,ns,1,1.90323e+11,1.89842e+11,ns,1,2.91436e+11,2.90854e+11,ns,4096,double
+Eigen Solver (with eigen vector),166134,4214.3,4209.89,ns,185256,3789.19,3782.26,ns,108021,6481.91,6470.47,ns,8,double
+Eigen Solver (with eigen vector),45646,15328.3,15312.5,ns,49805,14074.9,14048.6,ns,22310,31788.1,31729,ns,16,double
+Eigen Solver (with eigen vector),9501,73770.2,73695.3,ns,9802,71493.5,71354.4,ns,3308,211260,210922,ns,32,double
+Eigen Solver (with eigen vector),1657,422681,422201,ns,1698,412396,411561,ns,455,1.53164e+06,1.5293e+06,ns,64,double
+Eigen Solver (with eigen vector),239,2.93361e+06,2.92998e+06,ns,239,2.92217e+06,2.91603e+06,ns,58,1.20056e+07,1.19885e+07,ns,128,double
+Eigen Solver (with eigen vector),33,2.12093e+07,2.11793e+07,ns,33,2.08864e+07,2.08421e+07,ns,8,8.74311e+07,8.72774e+07,ns,256,double
+Eigen Solver (with eigen vector),4,1.97311e+08,1.97018e+08,ns,3,2.19047e+08,2.18606e+08,ns,1,6.951e+08,6.93526e+08,ns,512,double
+Eigen Solver (with eigen vector),1,1.56213e+09,1.55985e+09,ns,1,1.72806e+09,1.72441e+09,ns,1,5.29604e+09,5.28822e+09,ns,1024,double
+Eigen Solver (with eigen vector),1,2.38406e+10,2.37759e+10,ns,1,2.65951e+10,2.654e+10,ns,1,6.48211e+10,6.46491e+10,ns,2048,double
+Eigen Solver (with eigen vector),1,3.41824e+11,3.40999e+11,ns,1,2.94917e+11,2.94192e+11,ns,1,5.12897e+11,5.11818e+11,ns,4096,double
+Eigen Solver,266687,2626.41,2623.48,ns,290277,2404.08,2401.09,ns,324731,2147.91,2144.3,ns,8,float
+Eigen Solver,65432,10694.2,10682.5,ns,74392,9364.79,9353.68,ns,68817,10135.4,10119.3,ns,16,float
+Eigen Solver,16962,41329.5,41284.7,ns,18998,36853.2,36820.2,ns,13823,50699.6,50610.4,ns,32,float
+Eigen Solver,3153,221725,221478,ns,3471,201845,201649,ns,2040,342674,342097,ns,64,float
+Eigen Solver,582,1.20333e+06,1.20197e+06,ns,604,1.15955e+06,1.15844e+06,ns,296,2.34513e+06,2.34104e+06,ns,128,float
+Eigen Solver,88,7.98942e+06,7.97925e+06,ns,86,8.17049e+06,8.16198e+06,ns,38,1.85203e+07,1.84904e+07,ns,256,float
+Eigen Solver,13,5.37832e+07,5.3701e+07,ns,11,6.0698e+07,6.0624e+07,ns,5,1.31913e+08,1.31638e+08,ns,512,float
+Eigen Solver,1,7.70729e+08,7.69414e+08,ns,1,8.40536e+08,8.38731e+08,ns,1,1.16412e+09,1.16201e+09,ns,1024,float
+Eigen Solver,1,5.57719e+09,5.56579e+09,ns,1,6.88509e+09,6.8716e+09,ns,1,9.44216e+09,9.42274e+09,ns,2048,float
+Eigen Solver,1,7.06947e+10,7.04996e+10,ns,1,7.57356e+10,7.55983e+10,ns,1,8.18396e+10,8.16522e+10,ns,4096,float
+Eigen Solver (with eigen vector),221210,3163.23,3157.81,ns,223419,3154.81,3151.23,ns,221434,3157.58,3153.29,ns,8,float
+Eigen Solver (with eigen vector),54836,12774.4,12752.7,ns,55109,12671.8,12652.2,ns,39543,17714.2,17684.3,ns,16,float
+Eigen Solver (with eigen vector),13217,52945.3,52851.6,ns,12849,54372.9,54305,ns,7080,98912.8,98791.5,ns,32,float
+Eigen Solver (with eigen vector),2248,311599,311016,ns,2306,303825,303482,ns,935,748844,747613,ns,64,float
+Eigen Solver (with eigen vector),390,1.79594e+06,1.79271e+06,ns,385,1.81862e+06,1.81636e+06,ns,143,4.89984e+06,4.89337e+06,ns,128,float
+Eigen Solver (with eigen vector),54,1.28826e+07,1.28564e+07,ns,54,1.30811e+07,1.30651e+07,ns,17,4.03889e+07,4.03345e+07,ns,256,float
+Eigen Solver (with eigen vector),7,9.77531e+07,9.7568e+07,ns,6,1.10412e+08,1.10244e+08,ns,2,2.9455e+08,2.9405e+08,ns,512,float
+Eigen Solver (with eigen vector),1,1.20179e+09,1.19942e+09,ns,1,1.45942e+09,1.45727e+09,ns,1,2.43751e+09,2.43273e+09,ns,1024,float
+Eigen Solver (with eigen vector),1,1.28602e+10,1.28356e+10,ns,1,1.6538e+10,1.65085e+10,ns,1,2.25966e+10,2.2552e+10,ns,2048,float
+Eigen Solver (with eigen vector),1,1.50403e+11,1.50045e+11,ns,1,1.53975e+11,1.53654e+11,ns,1,2.07841e+11,2.07402e+11,ns,4096,float

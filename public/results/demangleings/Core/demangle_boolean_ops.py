@@ -3,6 +3,7 @@ import csv
 import os
 import re
 from pathlib import Path
+import sys
 from typing import Any, Dict
 
 
@@ -19,7 +20,7 @@ from typing import Any, Dict
 src_major_path = "combined"
 dest_major_path = "demangled"
 
-sub_dir = "run2"
+# sub_dir = "run4"
 minor_path = "Core/bench_boolean_ops.csv"
 
 
@@ -208,12 +209,17 @@ def process_csv(input_path, output_path):
 
 
 def main():
+    if (len(sys.argv) != 2):
+        print("ERROR: Please specify run directory")
+        return
+    run_dir = sys.argv[1]
+
     # Ensure the output directory exists
-    output_path = (Path(dest_major_path) / sub_dir / minor_path)
+    output_path = (Path(dest_major_path) / run_dir / minor_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    input_path = Path(src_major_path) / sub_dir / minor_path
-    output_path = Path(dest_major_path) / sub_dir / minor_path
+    input_path = Path(src_major_path) / run_dir / minor_path
+    output_path = Path(dest_major_path) / run_dir / minor_path
 
     process_csv(input_path, output_path)
 

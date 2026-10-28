@@ -4,7 +4,7 @@ import os
 
 
 major = 'demangled'
-run = 'run2'
+run = 'run4'
 
 base_path = Path(major) / run
 # Concatinate csvs with the same op and different types

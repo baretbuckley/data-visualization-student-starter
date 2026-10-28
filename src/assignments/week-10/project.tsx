@@ -33,9 +33,11 @@ const OP_CLASSES = {
     'bench_boolean_ops': "Boolean Ops",
     'bench_broadcasting': "Matrix Broadcasting",
     'bench_gemm': "Matrix Mult (GEMM)",
+    'bench_cwise_math': 'Col-Wise Math',
   }],
   'LU': ["LU", {
     'bench_lu': "LU Decomposition",
+    'bench_lu_stride': "Strided LU Decomp",
   }],
   'Eigen Values': ["Eigenvalues", {
     'bench_geev': "Eigen Solver",
@@ -218,7 +220,6 @@ export function ProjectAddedInteraction() {
   }, [opClasses, workingPath]);
 
   useEffect(() => {
-    console.log("seting entry");
     if (!useLineChart || !opClasses) {
       setSelectEntry(null);
       return;
@@ -238,7 +239,6 @@ export function ProjectAddedInteraction() {
       return;
     }
     const entry = opGroup.children.find((oc) => oc.name === workingPath[2]) ?? null;
-    console.log("set entry:", entry);
     setSelectEntry(entry);
   }, [opClasses, useLineChart, workingPath]);
 
@@ -248,7 +248,7 @@ export function ProjectAddedInteraction() {
   const svg_dim: Dimensions = useMemo(() => {
     return {
       width: dimensions.width * 0.75,
-      height: Math.min(dimensions.height * 0.6, dimensions.width * 0.8),
+      height: Math.min(dimensions.height * 0.8, dimensions.width * 0.8),
     }
   }, [dimensions]);
 
@@ -324,7 +324,6 @@ export function ProjectAddedInteraction() {
     const svg = svgRef.current;
     if (!svg || svg_dim.width === 0 || svg_dim.height === 0) return;
     if (useLineChart) return;
-    console.log("using bar chart, selected", toolTip? toolTip.operation : "");
     BarChart(svg, data, barChartSpace, toolTip? toolTip.operation : "", setToolTip, (operation) => {
       setWorkingPath((prevPath) => {
         if (prevPath.length === 0) {
@@ -380,23 +379,30 @@ export function ProjectAddedInteraction() {
 
       {helpMenuePressed && (
         <div
-          className="absolute left-1/2 top-20 z-20 w-[min(28rem,calc(100%-2rem))] -translate-x-1/2 rounded bg-gray-300 p-4 shadow-2xl"
+          className="absolute left-1/2 top-20 z-20 w-[min(34rem,calc(100%-2rem))] -translate-x-1/2 rounded bg-gray-200 p-4 shadow-2xl"
+          style={{border: '1px solid rgb(0, 0, 0)'}}
         >
           <div className="mb-2 flex items-center justify-between">
             <strong>Help</strong>
             <button
               type="button"
               onClick={() => setHelpMenuePressed(false)}
-              className="rounded bg-gray-200 px-2 py-1 text-sm"
+              className="rounded bg-gray-300 px-2 py-1 text-sm"
               aria-label="Close help menu"
             >
               ×
             </button>
           </div>
-          <div className="text-sm">
-            <p>Use the bar chart to explore operations.</p>
-            <p>Select a bar to drill down into groups and entries.</p>
-            <p>When the line chart is displayed, hover or click points for details.</p>
+          <div className="text-sm w-fit h-fit">
+            <p>Welcome to the Eigen Benchmark Vectorization Explorer.</p>
+            <p>Here the performance improvment from Hand-Vectorized and Auto-Vectorized are compared across different operations provided by Eigen's benchmarking system.</p>
+            <div className="pt-4 space-y-1">
+              <p>Explore different catagories through the interaactive bar-chart.</p>
+            </div>
+            <p>Each bar represents the average of all subcatagories/operations in that catagory</p>
+            <p>Double click to drill deeper and explore subcatagories/operation.</p>
+            <p>Use the breadcrumb tooltip at the top to go back to overarching catagories.</p>
+            <p>Once you enter an operation it will show a linegraph of the performance over different matrix/vector sizes</p>
           </div>
         </div>
       )}

@@ -2,8 +2,8 @@ import csv
 from pathlib import Path
 
 # Configuration
-RUN_FOLDER = "run2"
-OUTPUT_FOLDER = "run2"
+RUN_FOLDER = "run4"
+OUTPUT_FOLDER = "run4"
 
 IMPLEMENTATIONS = {
     "HAND_VECTORIZED": "hand_vectorized",
