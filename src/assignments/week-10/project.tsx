@@ -2,10 +2,7 @@ import { useEffect, useMemo, useState, useRef } from 'react';
 import * as d3 from "d3";
 // import { select } from 'd3-selection';
 import { csvParse } from 'd3-dsv';
-import { scaleBand, scaleLinear, type ScaleBand, type ScaleLinear } from 'd3-scale';
-// import { scaleBand, scaleLinear } from 'd3-scale';
-// import { max } from 'd3-array';
-import { select } from 'd3-selection';
+import { scaleBand, scaleLinear } from 'd3-scale';
 import { useDimensions } from './useDimensions';
 
 import * as Data from './data';
@@ -19,12 +16,6 @@ import { infoButton } from './helpMenue';
 
 
 
-interface Margin {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-}
 
 
 const ROOT_URL = `${import.meta.env.BASE_URL}data`;
