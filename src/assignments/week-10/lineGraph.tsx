@@ -1,8 +1,6 @@
 import * as d3 from "d3";
 import { select } from 'd3-selection';
 
-import * as data from './data';
-
 import type { LineGraphSpace } from "./graphSpace";
 
 
