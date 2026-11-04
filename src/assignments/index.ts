@@ -8,6 +8,7 @@ import { project } from './project/project';
 import { radialFlame } from './week-7/radialFlameGraph';
 import { ProjectIteration } from './week-08/project';
 import { ProjectAddedInteraction } from './week-10/project';
+import { ProjectSecondAddedInteraction } from './week-11/project';
 
 
 
@@ -64,6 +65,11 @@ export const assignments: Assignment[] = [
     name: 'Week 10',
     component: ProjectAddedInteraction,
   },
+  {
+    id: '11',
+    name: 'Week 11',
+    component: ProjectSecondAddedInteraction,
+  }
 ];
 
 export const assignmentsMap = new Map(assignments.map((ex) => [ex.id, ex]));
