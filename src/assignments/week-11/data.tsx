@@ -1,11 +1,8 @@
-
-
-
+import { findNClosestStrings } from "./stringSearch";
 
 export interface ResultRatio {
-  handVect: number,
-  autoVect: number,
-//   scalar: number,
+  handVect: number;
+  autoVect: number;
 }
 
 export interface Instance {
@@ -13,9 +10,6 @@ export interface Instance {
   size: number;
   baselineScalar: number;
   result: ResultRatio;
-//   hand_vectorized_cpu_time: number;
-//   llvm_auto_cpu_time: number;
-//   scalar_cpu_time: number;
 }
 
 export interface Entry {
@@ -35,7 +29,6 @@ export interface OpClass {
   results: ResultRatio;
   children: (EntryGroup | Entry)[];
 }
-
 
 export function updateEntryResults(entry: Entry) {
   const combinedResult: ResultRatio = {
@@ -75,7 +68,6 @@ export function updateEntryGroupResults(entryGroup: EntryGroup) {
   entryGroup.results = combinedResult;
 }
 
-
 export function updateOpClassResults(opClass: OpClass) {
   const combinedResult: ResultRatio = {
     handVect: 0,
@@ -83,7 +75,7 @@ export function updateOpClassResults(opClass: OpClass) {
   };
   let count = 0;
   for (const child of opClass.children) {
-    if ('children' in child) {
+    if ("children" in child) {
       updateEntryGroupResults(child);
       combinedResult.handVect += child.results.handVect;
       combinedResult.autoVect += child.results.autoVect;
@@ -100,4 +92,36 @@ export function updateOpClassResults(opClass: OpClass) {
     combinedResult.autoVect /= count;
   }
   opClass.results = combinedResult;
+}
+
+// Search through opclasses and return the closest matches of all op classes, groups, or operations
+// Returns operations by their working path
+export function searchOps(opClasses: OpClass[], searchTerm: string, n: number): string[][] {
+
+  const names: string[] = [];
+  const paths: Record<string, string[]> = {};
+
+  if (!searchTerm.trim()) {
+    return [];
+  }
+
+  for (const opClass of opClasses) {
+    names.push(opClass.name.toLowerCase());
+    paths[opClass.name.toLowerCase()] = [opClass.name];
+    for (const child of opClass.children) {
+      names.push(child.name.toLowerCase());
+      paths[child.name.toLowerCase()] = [opClass.name, child.name];
+      if ("children" in child) {
+        for (const entry of child.children) {
+          names.push(entry.name.toLowerCase());
+          paths[entry.name.toLowerCase()] = [opClass.name, child.name, entry.name];
+        }
+      }
+    }
+  }
+
+  const closestNames = findNClosestStrings(names, searchTerm.toLowerCase(), n);
+  const closestPaths: string[][] = closestNames.map((name) => paths[name]);
+  return closestPaths;
+
 }

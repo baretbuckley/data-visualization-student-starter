@@ -2,7 +2,6 @@ import { select } from "d3-selection";
 import type { ResultRatio } from "./data";
 import type { BarChartSpace } from "./graphSpace";
 import type { Config } from "./config";
-import { text } from "d3";
 
 
 export type BarChartData = { [cat: string]: ResultRatio};
@@ -48,7 +47,19 @@ function formatName(name: string): SplitLine[] {
   ];
 }
 
+function hexToRgba(hex: string, alpha: number): string {
+  const cleanHex = hex.replace('#', '');
+  const expandedHex = cleanHex.length === 3
+    ? cleanHex.split('').map((char) => char + char).join('')
+    : cleanHex;
 
+  const value = Number.parseInt(expandedHex, 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 export function BarChart(svg: SVGSVGElement | null, data: BarChartData, graphSpace: BarChartSpace, selected: string, config: Config, onHover?: (toolTip: BarToolTip | null) => void, onDblClick?: (operation: string) => void) {
 
@@ -62,14 +73,20 @@ export function BarChart(svg: SVGSVGElement | null, data: BarChartData, graphSpa
   const autoVecColor = config.graphColors.auto;
   const handVecColorLight = config.graphColors.handSel;
   const autoVecColorLight = config.graphColors.autoSel;
-  // const handVecColor = '#da2c2c';
-  // const autoVecColor = '#7c2626';
-  // const handVecColorLight = '#fb4f4f';
-  // const autoVecColorLight = '#cd5d5d';
   const textColor = config.siteColors.text;
 
-  const xticks = graphSpace.xScale.ticks(Math.ceil(graphSpace.xScale.domain()[1] - graphSpace.xScale.domain()[0]));
+  var numTicks = graphSpace.xScale.domain()[1] - graphSpace.xScale.domain()[0];
+  if (numTicks > 20) {
+    numTicks /= 5;
+  }
+  const xticks = graphSpace.xScale.ticks(Math.ceil(numTicks));
   const tick_margin = 0.02*(graphSpace.yScale.range()[1] -graphSpace.yScale.range()[0] )
+  const plotHeight = graphSpace.dimensions.height - graphSpace.margin.top - graphSpace.margin.bottom;
+  const zeroX = graphSpace.xScale(0);
+
+
+
+
   graph.append('g')
     .selectAll('line.grids')
     .data(xticks)
@@ -87,11 +104,11 @@ export function BarChart(svg: SVGSVGElement | null, data: BarChartData, graphSpa
     .join('text')
     .attr('class', 'xtick')
     .attr('x', (d) => graphSpace.xScale(d))
-    .attr('y', graphSpace.dimensions.height-graphSpace.margin.bottom-graphSpace.margin.top+15)
+    .attr('y', -15)
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'middle')
     .attr('font-size', 12)
-    .attr('fill', (d) => textColor)
+    .attr('fill', () => textColor)
     .text((d) => `x${(Math.abs(d)).toLocaleString()}`);
 
 
@@ -181,18 +198,18 @@ export function BarChart(svg: SVGSVGElement | null, data: BarChartData, graphSpa
 
   graph
     .append('text')
-    .attr('x', (graphSpace.xScale.range()[0] * 2 + graphSpace.xScale(0)) / 4)
-    .attr('y', -20)
-    .attr('text-anchor', 'middle')
+    .attr('x', (graphSpace.xScale.range()[0]))
+    .attr('y', -30)
+    .attr('text-anchor', 'start')
     .attr('font-size', 14)
     .attr('fill', autoVecColor)
     .text('Auto Vectorized Speedup');
 
   graph
     .append('text')
-    .attr('x', (graphSpace.xScale.range()[1] * 2 + graphSpace.xScale(0)) / 4)
-    .attr('y', -20)
-    .attr('text-anchor', 'middle')
+    .attr('x', graphSpace.xScale.range()[1])
+    .attr('y', -30)
+    .attr('text-anchor', 'end')
     .attr('font-size', 14)
     .attr('fill', handVecColor)
     .text('Hand Vectorized Speedup');
@@ -204,5 +221,116 @@ export function BarChart(svg: SVGSVGElement | null, data: BarChartData, graphSpa
     .attr('text-anchor', 'middle')
     .attr('font-size', 14)
     .text('Performance Ratio Against Scalarized Version');
+
+  graph.append('line')
+    .attr('x1', zeroX)
+    .attr('x2', zeroX)
+    .attr('y1', 0)
+    .attr('y2', plotHeight)
+    .attr('stroke', hexToRgba(textColor, 0.28))
+    .attr('stroke-width', 9)
+    .attr('opacity', 0.45)
+    .attr('pointer-events', 'none');
+
+  graph.append('line')
+    .attr('x1', zeroX)
+    .attr('x2', zeroX)
+    .attr('y1', 0)
+    .attr('y2', plotHeight)
+    .attr('stroke', textColor)
+    .attr('stroke-width', 1)
+    // .attr('stroke-dasharray', '8 6')
+    .attr('pointer-events', 'none');
+
+  const selectedResult = selected && data[selected] ? data[selected] : null;
+  if (selectedResult) {
+    const handLabelX = graphSpace.xScale(selectedResult.handVect);
+    const autoLabelX = graphSpace.xScale(-selectedResult.autoVect);
+    const labelY = -42;
+
+    const calloutData = [
+      {
+        label: `Hand: ${selectedResult.handVect.toFixed(2)}x`,
+        x: handLabelX,
+        fill: handVecColor,
+        anchor: handLabelX > graphSpace.xScale.range()[1] - 40 ? 'end' : 'middle',
+      },
+      {
+        label: `Auto: ${selectedResult.autoVect.toFixed(2)}x`,
+        x: autoLabelX,
+        fill: autoVecColor,
+        anchor: autoLabelX < graphSpace.xScale.range()[0] + 40 ? 'start' : 'middle',
+      },
+    ];
+
+    const selectedLabelGroup = graph.append('g')
+      .attr('pointer-events', 'none');
+
+    // Draw selected op value lines
+    selectedLabelGroup
+      .selectAll('line.callout-guide-bg')
+      .data(calloutData)
+      .join('line')
+      .attr('class', 'callout-guide-bg')
+      .attr('x1', (d) => d.x)
+      .attr('x2', (d) => d.x)
+      .attr('y1', -18)
+      .attr('y2', plotHeight)
+      .attr('stroke', (d) => hexToRgba(d.fill, 0.25))
+      .attr('stroke-width', 5);
+    selectedLabelGroup
+      .selectAll('line.callout-guide')
+      .data(calloutData)
+      .join('line')
+      .attr('class', 'callout-guide')
+      .attr('x1', (d) => d.x)
+      .attr('x2', (d) => d.x)
+      .attr('y1', -18)
+      .attr('y2', plotHeight)
+      .attr('stroke', (_d) => hexToRgba('#FFFFFF', 1))
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', '4 5');
+
+    // Draw selected op value pill labels
+    selectedLabelGroup
+      .selectAll('g.callout')
+      .data(calloutData)
+      .join('g')
+      .attr('class', 'callout')
+      .attr('transform', (d) => `translate(${d.x}, ${labelY})`)
+      .each(function (d) {
+        const group = select(this);
+        const textNode = group.append('text')
+          .attr('fill', d.fill)
+          .attr('font-size', 11)
+          .attr('font-weight', 700)
+          .attr('text-anchor', d.anchor)
+          .attr('dominant-baseline', 'middle')
+          .attr('paint-order', 'stroke')
+          .attr('stroke', config.siteColors.surface)
+          .attr('stroke-width', 4)
+          .text(d.label);
+
+        const bbox = (textNode.node() as SVGGraphicsElement | null)?.getBBox?.();
+        if (!bbox) return;
+
+        const pad = 6;
+        const pillWidth = bbox.width + pad * 2;
+        const pillHeight = bbox.height + pad * 1.2;
+        const pillX = d.anchor === 'middle' ? -pillWidth / 2 : (d.anchor === 'end' ? -pillWidth + pad : -pad);
+        // const pillX = -pillWidth / 2 - pad / 2 + 2;
+        const pillY = -pillHeight / 2;
+
+        group.insert('rect', 'text')
+          .attr('x', pillX)
+          .attr('y', pillY)
+          .attr('width', pillWidth)
+          .attr('height', pillHeight)
+          .attr('rx', 7)
+          .attr('fill', hexToRgba(config.siteColors.surface, 0.72))
+          .attr('stroke', hexToRgba(d.fill, 0.5))
+          .attr('stroke-width', 1);
+      });
+  }
 
 }

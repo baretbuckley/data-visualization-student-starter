@@ -1,8 +1,6 @@
 import * as d3 from "d3";
 import { select } from 'd3-selection';
 
-import * as data from './data';
-
 import type { LineGraphSpace } from "./graphSpace";
 import type { Config } from "./config";
 
@@ -25,17 +23,6 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
 
   const graph = svgSel.append('g').attr('transform', `translate(${graphSpace.margin.left},${graphSpace.margin.top})`);
 
-  // const aggregateBySize = new Map<number, { hand: number[]; auto: number[] }>();
-
-  // for (const instance of data.data) {
-  //   const current = aggregateBySize.get(instance.size) ?? { hand: [], auto: [] };
-  //   current.hand.push(instance.result.handVect);
-  //   current.auto.push(instance.result.autoVect);
-  //   aggregateBySize.set(instance.size, current);
-  // }
-
-
-
   const plotWidth = graphSpace.dimensions.width - graphSpace.margin.left - graphSpace.margin.right;
   const plotHeight = graphSpace.dimensions.height - graphSpace.margin.top - graphSpace.margin.bottom;
 
@@ -43,7 +30,8 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
 
   const bkgTickColor = config.siteColors.text;
   const bkgGridColor = config.siteColors.surfaceSecondary;
-
+  const handVecColor = config.graphColors.hand;
+  const autoVecColor = config.graphColors.auto;
 
   const getClosestPoint = (size: number) => {
     let minDistance = Infinity;
@@ -107,7 +95,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .call((g) => xAxis(g))
     .call((g) => g.select('.domain').attr('stroke', bkgTickColor))
     .call((g) => g.selectAll('.tick line').attr('stroke', bkgTickColor))
-    .call((g) => g.selectAll('.tick text').attr('font-size', 11));
+    .call((g) => g.selectAll('.tick text').attr('font-size', 11).attr('fill', bkgTickColor));
   // // X axis
   // graph
   //   .append('g')
@@ -123,7 +111,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .call((g) => yAxis(g))
     .call((g) => g.select('.domain').attr('stroke', bkgTickColor))
     .call((g) => g.selectAll('.tick line').attr('stroke', bkgTickColor))
-    .call((g) => g.selectAll('.tick text').attr('font-size', 11));
+    .call((g) => g.selectAll('.tick text').attr('font-size', 11).attr('fill', bkgTickColor));
 
   // X-axis label
   graph
@@ -133,6 +121,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .attr('text-anchor', 'middle')
     .attr('font-size', 12)
     .attr('font-weight', 'bold')
+    .attr('fill', bkgTickColor)
     .text('Size');
 
   // Y-axis label
@@ -142,6 +131,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .attr('text-anchor', 'middle')
     .attr('font-size', 12)
     .attr('font-weight', 'bold')
+    .attr('fill', bkgTickColor)
     .text('Speedup vs Scalar');
 
   // Positive/negative legend
@@ -151,7 +141,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .attr('y', -8)
     .attr('text-anchor', 'middle')
     .attr('font-size', 11)
-    .attr('fill', '#da2c2c')
+    .attr('fill', handVecColor)
     .text('Hand Vectorized');
 
   graph
@@ -160,7 +150,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .attr('y', graphSpace.yScale.range()[0]+30)
     .attr('text-anchor', 'middle')
     .attr('font-size', 11)
-    .attr('fill', '#7c2626')
+    .attr('fill', autoVecColor)
     .text('Auto Vectorized');
 
   const handLine = d3
@@ -181,7 +171,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .append('path')
     .datum(points.map((p) => ({ size: p.size, hand: p.hand })))
     .attr('fill', 'none')
-    .attr('stroke', '#da2c2c')
+    .attr('stroke', handVecColor)
     .attr('stroke-width', 2.5)
     .attr('d', handLine);
 
@@ -189,7 +179,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .append('path')
     .datum(points.map((p) => ({ size: p.size, auto: p.auto })))
     .attr('fill', 'none')
-    .attr('stroke', '#7c2626')
+    .attr('stroke', autoVecColor)
     .attr('stroke-width', 2.5)
     .attr('d', autoLine);
 
@@ -203,7 +193,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .attr('cx', (d) => graphSpace.xScale(d.size))
     .attr('cy', (d) => graphSpace.yScale(d.hand))
     .attr('r', 4)
-    .attr('fill', '#da2c2c');
+    .attr('fill', handVecColor);
 
   graph
     .append('g')
@@ -214,7 +204,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .attr('cx', (d) => graphSpace.xScale(d.size))
     .attr('cy', (d) => graphSpace.yScale(d.auto))
     .attr('r', 4)
-    .attr('fill', '#7c2626');
+    .attr('fill', autoVecColor);
 
   // Nearest data point tooltip highlight line
   // Zero reference line

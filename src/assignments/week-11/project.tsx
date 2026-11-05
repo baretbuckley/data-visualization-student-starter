@@ -1,33 +1,20 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import * as d3 from "d3";
-// import { select } from 'd3-selection';
 import { csvParse } from 'd3-dsv';
-import { scaleBand, scaleLinear, type ScaleBand, type ScaleLinear } from 'd3-scale';
-// import { scaleBand, scaleLinear } from 'd3-scale';
-// import { max } from 'd3-array';
-import { select } from 'd3-selection';
+import { scaleBand, scaleLinear } from 'd3-scale';
 import { useDimensions } from './useDimensions';
 
 import * as Data from './data';
 import type { BarChartData, BarToolTip } from './barChart';
 import { BarChart } from './barChart';
 import { LineGraph, type LineGraphData, type LineToolTip } from './lineGraph';
+import { MultiOpLineGraph } from './multiOpLineGraph';
 import type { BarChartSpace, LineGraphSpace, Dimensions } from './graphSpace';
 import { workingPathHeader } from './workingPathHeader';
-import { infoButton } from './helpMenue';
+import { displayHelpMenue, infoButton } from './helpMenue';
 import { DARK_MODE, DARK_MODE_DEFAULT_GRAPH, LIGHT_MODE, type Config } from './config';
-
-
-
-
-interface Margin {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-}
-
-
+import { buildComparisonSeries } from './projectComparison';
+import { loadOpClasses } from './projectData';
 
 
 const ROOT_URL = `${import.meta.env.BASE_URL}data`;
@@ -47,25 +34,13 @@ const OP_CLASSES = {
   }],
 }
 
-    
-
-
-
 export function ProjectSecondAddedInteraction() {
 
   const svgRef = useRef<SVGSVGElement>(null);
   const { ref: divRef, dimensions } = useDimensions();
-  
 
-
-  // Data values
   const [opClasses, setOpClasses] = useState<Data.OpClass[] | null>(null)
   const [data, setData] = useState<BarChartData>({});
-
-  // const [filteredData, setFilteredData] = useState<StudentRecord[]> ([]);
-  // const [unis, setUnis] = useState<string[]> (["Combined"]);
-
-  // const [xAxis, setXAxis] = useState<XAxis>('changeInGPA');
 
   const [toolTip, setToolTip] = useState<BarToolTip | null>(null);
   const [lineToolTip, setLineToolTip] = useState<LineToolTip|null>(null);
@@ -78,7 +53,16 @@ export function ProjectSecondAddedInteraction() {
 
   const [config, setConfig] = useState<Config>({siteColors: DARK_MODE, graphColors: DARK_MODE_DEFAULT_GRAPH});
 
-  // const [terminal, setUseScatter] = useState<boolean>(false);
+  const [compareMode, setCompareMode] = useState<boolean>(false);
+  const [compareOps, setCompareOps] = useState<string[][]>([]);
+
+  const toggleTheme = () => {
+    setConfig((current) => ({
+      siteColors: current.siteColors === DARK_MODE ? LIGHT_MODE : DARK_MODE,
+      graphColors: current.graphColors,
+    }));
+  };
+
   useEffect(() => {
     if (workingPath.length === 3) {
       setUseLineChart(true);
@@ -87,93 +71,24 @@ export function ProjectSecondAddedInteraction() {
       setUseLineChart(false);
       setLineToolTip(null);
     }
+
+    if (workingPath.length !== 2) {
+      setCompareMode(false);
+    }
   }, [workingPath]);
 
-  // Process data
 
-  // Read in csv into data
   useEffect(() => {
     let cancelled = false;
 
-    async function loadOpClasses() {
-      const classes = await Promise.all(
-        Object.entries(OP_CLASSES).map(async ([opClassName, [opClassFile, opGroups]]) => {
-          const opClass: Data.OpClass = {
-            name: opClassName,
-            results: { handVect: 0, autoVect: 0 },
-            children: [],
-          };
-
-          const loadedGroups = await Promise.all(
-            Object.entries(opGroups).map(async ([opGroup, opGroupName]) => {
-              try {
-                const url = `${ROOT_URL}/${opClassFile}/${opGroup}.csv`;
-                const response = await fetch(url);
-                if (!response.ok) {
-                  throw new Error(`Failed to fetch ${url}: ${response.status}`);
-                }
-
-                const text = await response.text();
-                const parsed = csvParse(text);
-
-                const byOperation = new Map<string, Data.Instance[]>();
-                for (const row of parsed) {
-                  const operationName = row.name;
-                  if (!byOperation.has(operationName)) {
-                    byOperation.set(operationName, []);
-                  }
-
-                  const scalar = parseFloat(row.scalar_cpu_time);
-                  byOperation.get(operationName)!.push({
-                    type: row.type,
-                    size: parseInt(row.size),
-                    baselineScalar: scalar,
-                    result: {
-                      handVect: scalar / parseFloat(row.hand_vectorized_cpu_time),
-                      autoVect: scalar / parseFloat(row.llvm_auto_cpu_time),
-                    },
-                  });
-                }
-
-                const groupChildren: Data.Entry[] = Array.from(byOperation.entries()).map(([operationName, rows]) => {
-                  const entry: Data.Entry = {
-                    name: operationName,
-                    results: { handVect: 0, autoVect: 0 },
-                    data: rows,
-                  };
-
-                  Data.updateEntryResults(entry);
-                  return entry;
-                });
-
-                const group: Data.EntryGroup = {
-                  name: opGroupName,
-                  results: { handVect: 0, autoVect: 0 },
-                  children: groupChildren,
-                };
-
-                Data.updateEntryGroupResults(group);
-                return group;
-              } catch (error) {
-                console.error(`Failed to load data for ${opGroupName}`, error);
-                return null;
-              }
-            })
-          );
-
-          opClass.children = loadedGroups.filter((group): group is Data.EntryGroup => group !== null);
-          Data.updateOpClassResults(opClass);
-
-          return opClass;
-        })
-      );
-
+    async function fetchOpClasses() {
+      const classes = await loadOpClasses();
       if (!cancelled) {
         setOpClasses(classes);
       }
     }
 
-    void loadOpClasses();
+    void fetchOpClasses();
 
     return () => {
       cancelled = true;
@@ -247,6 +162,10 @@ export function ProjectSecondAddedInteraction() {
     setSelectEntry(entry);
   }, [opClasses, useLineChart, workingPath]);
 
+  const comparisonSeries = useMemo(() => {
+    return buildComparisonSeries(opClasses, workingPath, compareMode, compareOps);
+  }, [opClasses, compareMode, compareOps, workingPath]);
+
 
   // Get graph dimensions and aspects -----------------------------------------
   const spacing_gap = 0;
@@ -265,7 +184,7 @@ export function ProjectSecondAddedInteraction() {
   }, [dimensions, svg_dim]);
 
   const barChartSpace: BarChartSpace = useMemo(() => {
-    const margin = { top: 50, right: 5, bottom: 50, left: 200 };
+    const margin = { top: 60, right: 10, bottom: 30, left: 200 };
     const yScale = scaleBand()
       .domain(Object.keys(data))
       .range([0, svg_dim.height - margin.bottom - margin.top]);
@@ -323,12 +242,61 @@ export function ProjectSecondAddedInteraction() {
     };
   }, [svg_dim, selectEntry]);
 
+  const compareLineGraphSpace: LineGraphSpace = useMemo(() => {
+    const margin = { top: 50, right: 5, bottom: 50, left: 60 };
+    const allValues = Object.values(comparisonSeries).flatMap((series) => series);
+    const maxAbsY = d3.max(allValues.flatMap((point) => [Math.abs(point.hand), Math.abs(point.auto)])) ?? 1;
+    const maxSize = d3.max(allValues, (point) => point.size) ?? 1;
+    const minSize = d3.min(allValues, (point) => point.size) ?? 0;
+
+    const yScale = scaleLinear()
+      .domain([-maxAbsY, maxAbsY])
+      .range([svg_dim.height - margin.top - margin.left, 0]);
+
+    const xScale = scaleLinear()
+      .domain([minSize, maxSize])
+      .range([0, svg_dim.width - margin.right - margin.left]);
+
+    return {
+      dimensions: svg_dim,
+      margin: margin,
+      xScale: xScale,
+      yScale: yScale,
+    };
+
+  }, [svg_dim, comparisonSeries]);
+
+  useEffect(() => {
+    if (!compareMode || workingPath.length !== 2 || !opClasses) {
+      setCompareOps([]);
+      return;
+    }
+
+    const opClass = opClasses.find((oc) => oc.name === workingPath[0]);
+    if (!opClass) return;
+
+    const opGroup = (opClass.children as Data.EntryGroup[]).find((og) => og.name === workingPath[1]);
+    if (!opGroup) return;
+
+    setCompareOps((current) => {
+      if (current.length > 0) return current;
+      return opGroup.children.map((entry) => [opClass.name, opGroup.name, entry.name]);
+    });
+  }, [compareMode, opClasses, workingPath]);
+
 
   // Bar chart
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg || svg_dim.width === 0 || svg_dim.height === 0) return;
     if (useLineChart) return;
+    if (compareMode) return;
+    // if (compareMode && workingPath.length === 2 && Object.keys(comparisonSeries).length > 0) {
+    //   const selectSize = 20;
+    //   MultiOpLineGraph(svg, comparisonSeries, LineGraphSpace, selectSize, config, setLineToolTip);
+    //   return;
+    // }
+
     BarChart(svg, data, barChartSpace, toolTip? toolTip.operation : "", config, setToolTip, (operation) => {
       setWorkingPath((prevPath) => {
         if (prevPath.length === 0) {
@@ -340,7 +308,7 @@ export function ProjectSecondAddedInteraction() {
         }
       });
     });
-  }, [svg_dim, barChartSpace, data, useLineChart, toolTip]);
+  }, [svg_dim, barChartSpace, data, useLineChart, toolTip, config, compareMode, comparisonSeries, workingPath, LineGraphSpace]);
 
   // Line chart
   useEffect(() => {
@@ -357,7 +325,7 @@ export function ProjectSecondAddedInteraction() {
     if (!entry) return;
     console.log("Creating line chart");
     const selectSize = (lineToolTip)? lineToolTip.size : 20;
-    
+
     const aggregateBySize = new Map<number, { hand: number[]; auto: number[] }>();
 
     for (const instance of entry.data) {
@@ -367,7 +335,6 @@ export function ProjectSecondAddedInteraction() {
       aggregateBySize.set(instance.size, current);
     }
 
-
     const points: LineGraphData[] = Array.from(aggregateBySize.entries())
       .map(([size, values]) => ({
         size,
@@ -376,51 +343,25 @@ export function ProjectSecondAddedInteraction() {
       }))
       .sort((a, b) => a.size - b.size);
     LineGraph(svg, points, LineGraphSpace, selectSize, config, setLineToolTip);
-  }, [useLineChart, LineGraphSpace, opClasses, workingPath, lineToolTip])
+  }, [useLineChart, LineGraphSpace, opClasses, workingPath, lineToolTip, config])
+
+  // Compare mode line chart
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg || svg_dim.width === 0 || svg_dim.height === 0) return;
+    if (!compareMode || workingPath.length !== 2) return;
+    if (Object.keys(comparisonSeries).length === 0) return;
+    
+    const selectSize = (lineToolTip)? lineToolTip.size : 20;
+    MultiOpLineGraph(svg, comparisonSeries, compareLineGraphSpace, selectSize, config, setLineToolTip);
+  }, [compareMode, workingPath, comparisonSeries, compareLineGraphSpace, lineToolTip, config]);
 
   return (
 
-    <div ref={divRef} className="relative h-full w-full shaded-box">
+    <div ref={divRef} className="relative h-full w-full shaded-box" style={{background:config.siteColors.surface}}>
 
       {helpMenuePressed && (
-        <div
-          className="absolute left-1/2 top-20 z-20 w-[min(34rem,calc(100%-2rem))] -translate-x-1/2 rounded p-4 shadow-2xl"
-          style={{
-            border: '1px solid rgb(0, 0, 0)',
-            background: config.siteColors.surfaceSecondary,
-            color: config.siteColors.text
-          }}
-        >
-          <div className="mb-2 flex items-center justify-between">
-            <strong>Help</strong>
-            <button
-              type="button"
-              onClick={() => setHelpMenuePressed(false)}
-              className="rounded px-2 py-1 text-sm"
-              style={{
-                background:config.siteColors.surfaceSel, 
-                // border:"solid", 
-                // borderWidth:"0.1em",
-                // borderColor:config.siteColors.text,
-                cursor:"pointer",
-              }}
-              aria-label="Close help menu"
-            >
-              ×
-            </button>
-          </div>
-          <div className="text-sm w-fit h-fit">
-            <p>Welcome to the Eigen Benchmark Vectorization Explorer.</p>
-            <p>Here the performance improvment from Hand-Vectorized and Auto-Vectorized are compared across different operations provided by Eigen's benchmarking system.</p>
-            <div className="pt-4 space-y-1">
-              <p>Explore different catagories through the interaactive bar-chart.</p>
-            </div>
-            <p>Each bar represents the average of all subcatagories/operations in that catagory</p>
-            <p>Double click to drill deeper and explore subcatagories/operation.</p>
-            <p>Use the breadcrumb tooltip at the top to go back to overarching catagories.</p>
-            <p>Once you enter an operation it will show a linegraph of the performance over different matrix/vector sizes</p>
-          </div>
-        </div>
+        displayHelpMenue(config, setHelpMenuePressed)
       )}
       
       <div className="flex flex-col gap-0 p-0 w-full">
@@ -439,8 +380,39 @@ export function ProjectSecondAddedInteraction() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'right',
-            paddingRight: 45
+            paddingRight: 45,
+            gap: 12,
           }}>
+            {workingPath.length === 2 && (
+              <button
+                type="button"
+                onClick={() => setCompareMode((current) => !current)}
+                className="rounded px-3 py-1.5 text-sm font-medium transition-opacity hover:opacity-90"
+                style={{
+                  background: compareMode ? config.graphColors.hand : config.siteColors.subHeader,
+                  color: config.siteColors.text,
+                  border: `1px solid ${config.siteColors.surfaceSecondary}`,
+                  cursor: 'pointer',
+                }}
+                aria-label="Toggle comparing operations in this subcategory"
+              >
+                {compareMode ? 'Hide comparison' : 'Compare operations'}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="rounded px-3 py-1.5 text-sm font-medium transition-opacity hover:opacity-90"
+              style={{
+                background: config.siteColors.subHeader,
+                color: config.siteColors.text,
+                border: `1px solid ${config.siteColors.surfaceSecondary}`,
+                cursor: 'pointer',
+              }}
+              aria-label="Toggle light and dark mode"
+            >
+              {config.siteColors === DARK_MODE ? 'Light mode' : 'Dark mode'}
+            </button>
             {infoButton(45, helpMenuePressed, () => {setHelpMenuePressed(!helpMenuePressed)}, config)}
           </div>
         </div>
@@ -504,3 +476,4 @@ export function ProjectSecondAddedInteraction() {
 
   );
 }
+
