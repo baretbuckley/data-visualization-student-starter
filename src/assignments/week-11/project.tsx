@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import * as d3 from "d3";
-import { csvParse } from 'd3-dsv';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import { useDimensions } from './useDimensions';
 
@@ -17,22 +16,6 @@ import { buildComparisonSeries } from './projectComparison';
 import { loadOpClasses } from './projectData';
 
 
-const ROOT_URL = `${import.meta.env.BASE_URL}data`;
-const OP_CLASSES = {
-  'Core': ["Core", {
-    'bench_boolean_ops': "Boolean Ops",
-    'bench_broadcasting': "Matrix Broadcasting",
-    'bench_gemm': "Matrix Mult (GEMM)",
-    'bench_cwise_math': 'Col-Wise Math',
-  }],
-  'LU': ["LU", {
-    'bench_lu': "LU Decomposition",
-    'bench_lu_stride': "Strided LU Decomp",
-  }],
-  'Eigen Values': ["Eigenvalues", {
-    'bench_geev': "Eigen Solver",
-  }],
-}
 
 export function ProjectSecondAddedInteraction() {
 
