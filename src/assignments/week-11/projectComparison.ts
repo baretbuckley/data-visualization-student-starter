@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 
 import type * as Data from './data';
-import type { LineGraphData } from './lineGraph';
+import type { LineGraphData } from './display/lineGraph';
 
 export function buildSeriesForEntry(entry: Data.Entry): LineGraphData[] {
   const aggregateBySize = new Map<number, { hand: number[]; auto: number[] }>();

@@ -1,7 +1,7 @@
 import { select } from "d3-selection";
-import type { ResultRatio } from "./data";
-import type { BarChartSpace } from "./graphSpace";
-import type { Config } from "./config";
+import type { ResultRatio } from "../data";
+import type { BarChartSpace } from "../graphSpace";
+import type { Config } from "../config";
 
 
 export type BarChartData = { [cat: string]: ResultRatio};

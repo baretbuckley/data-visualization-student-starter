@@ -9,9 +9,7 @@ import { radialFlame } from './week-7/radialFlameGraph';
 import { ProjectIteration } from './week-08/project';
 import { ProjectAddedInteraction } from './week-10/project';
 import { ProjectSecondAddedInteraction } from './week-11/project';
-
-
-
+import { App as Week12Project } from './week-12/App.jsx';
 
 export interface Assignment {
   id: string;
@@ -69,7 +67,12 @@ export const assignments: Assignment[] = [
     id: '11',
     name: 'Week 11',
     component: ProjectSecondAddedInteraction,
-  }
+  },
+  {
+    id: '12',
+    name: 'Week 12',
+    component: Week12Project,
+  },
 ];
 
 export const assignmentsMap = new Map(assignments.map((ex) => [ex.id, ex]));

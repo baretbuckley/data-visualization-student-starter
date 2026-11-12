@@ -1,4 +1,4 @@
-import type { Config } from "./config";
+import type { Config } from "../config";
 
 
 export function workingPathHeader(path: string[], setPath: (path: string[])=>void, config: Config) {

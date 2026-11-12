@@ -1,8 +1,8 @@
 import * as d3 from "d3";
 import { select } from 'd3-selection';
 
-import type { Config } from "./config";
-import type { LineGraphSpace } from "./graphSpace";
+import type { Config } from "../config";
+import type { LineGraphSpace } from "../graphSpace";
 import type { LineGraphData, LineToolTip } from "./lineGraph";
 
 export function MultiOpLineGraph(
