@@ -124,7 +124,7 @@ export const App = () => {
   useEffect(() => {
     let active = true;
 
-    csv('/sleep_debt_screen_time.csv')
+    csv(`${import.meta.env.BASE_URL}sleep_debt_screen_time.csv`)
       .then((rows) => {
         if (!active) return;
 
