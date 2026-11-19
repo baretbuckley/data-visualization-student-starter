@@ -66,6 +66,7 @@ export function MultiOpLineGraph(
   selectOp: string|null,
   config: Config,
   onHover: (tip: LineToolTip | null, op:string|null) => void,
+  onDblClick?: (operation: string) => void,
 ) {
   const svgSel = select(svg);
   svgSel.selectAll('*').remove();
@@ -99,6 +100,51 @@ export function MultiOpLineGraph(
     }
 
     return closest;
+  };
+
+  const getAverageAtSize = (size: number) => {
+    const handValues: number[] = [];
+    const autoValues: number[] = [];
+
+    for (const [, series] of seriesEntries) {
+      let closestPoint: LineGraphData | null = null;
+      let minDistance = Infinity;
+
+      for (const point of series) {
+        const distance = Math.abs(point.size - size);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestPoint = point;
+        }
+      }
+
+      if (closestPoint) {
+        handValues.push(closestPoint.hand);
+        autoValues.push(closestPoint.auto);
+      }
+    }
+
+    return {
+      handV: d3.mean(handValues) ?? 0,
+      autoV: d3.mean(autoValues) ?? 0,
+    };
+  };
+
+  const getOperationAtSize = (operation: string, size: number) => {
+    const series = points[operation];
+    if (!series) return null;
+
+    let closestPoint: LineGraphData | null = null;
+    let minDistance = Infinity;
+    for (const point of series) {
+      const distance = Math.abs(point.size - size);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPoint = point;
+      }
+    }
+
+    return closestPoint;
   };
 
   graph
@@ -177,7 +223,6 @@ export function MultiOpLineGraph(
   seriesEntries.forEach(([name, series], index) => {
     const handColor = colors[index % colors.length];
     const autoColor = colors[(index + 1) % colors.length];
-    const select = (!selectOp)? false : selectOp == name;
 
     const handLine = d3
       .line<{ size: number; hand: number }>()
@@ -188,7 +233,7 @@ export function MultiOpLineGraph(
     const autoLine = d3
       .line<{ size: number; auto: number }>()
       .x((d) => xScale(d.size))
-      .y((d) => yScale(d.auto))
+      .y((d) => yScale(-d.auto))
       .curve(d3.curveMonotoneX);
 
     graph
@@ -196,7 +241,7 @@ export function MultiOpLineGraph(
       .datum(series.map((p) => ({ size: p.size, hand: p.hand })))
       .attr('fill', 'none')
       .attr('stroke', handColor)
-      .attr('stroke-width', 2)
+      .attr('stroke-width', (selectOp==name)? 3 : 2)
       .attr('opacity', (!selectOp)? 0.9 : (selectOp==name)? 1 : 0.3)
       .attr('d', handLine);
 
@@ -205,8 +250,8 @@ export function MultiOpLineGraph(
       .datum(series.map((p) => ({ size: p.size, auto: p.auto })))
       .attr('fill', 'none')
       .attr('stroke', autoColor)
-      .attr('stroke-width', 2)
-      .attr('opacity', 0.85)
+      .attr('stroke-width', (selectOp==name)? 3 : 2)
+      .attr('opacity',  (!selectOp)? 0.9 : (selectOp==name)? 1 : 0.3)
       .attr('d', autoLine);
 
     graph
@@ -262,26 +307,39 @@ export function MultiOpLineGraph(
     .attr('width', plotWidth)
     .attr('fill', '#00000000')
     .on('mousemove', (event) => {
-      const mouseX = event.clientX - graphSpace.margin.left -250;
+      const plotNode = graph.node();
+      if (!plotNode) return;
+
+      const [mouseX, mouseY] = d3.pointer(event, plotNode);
       const x = xScale.invert(mouseX);
-      const y = yScale.invert(event.clientY);
       const closest = getClosestPoint(x);
 
-      console.log(
-        "pos:(", mouseX, event.clientY, ")",
-        "(", xScale.invert(mouseX), yScale.invert(event.clientY), ")"
-      );
+      const selectOp = nearestOpLine(points, mouseX, mouseY,
+        xScale, yScale, 10);
 
-      const selectOp = nearestOpLine(points, mouseX, event.clientY,
-        xScale, yScale, 5);
+      const average = (!closest) ? null : getAverageAtSize(closest.point.size);
+      const operationPoint = (selectOp && closest)
+        ? getOperationAtSize(selectOp, closest.point.size)
+        : null;
 
-      const toolTip = (!closest)? null : {
+      const toolTip = (!closest || !average) ? null : {
         size: closest.point.size,
-        handV: closest.point.hand,
-        autoV: closest.point.auto,
+        handV: average.handV,
+        autoV: average.autoV,
+        operationName: operationPoint && selectOp ? selectOp : undefined,
+        operationHandV: operationPoint?.hand,
+        operationAutoV: operationPoint?.auto,
       };
 
       onHover(toolTip, selectOp);
+    })
+    .on('dblclick', (event) => {
+      const plotNode = graph.node();
+      if (!plotNode || !onDblClick) return;
+
+      const [mouseX, mouseY] = d3.pointer(event, plotNode);
+      const operation = nearestOpLine(points, mouseX, mouseY, xScale, yScale, 10);
+      if (operation) onDblClick(operation);
     })
     .on('mouseleave', () => onHover(null, null));
 }

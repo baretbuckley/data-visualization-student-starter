@@ -9,6 +9,9 @@ export interface LineToolTip {
   size: number,
   handV: number,
   autoV: number,
+  operationName?: string,
+  operationHandV?: number,
+  operationAutoV?: number,
 }
 
 export interface LineGraphData {
@@ -127,7 +130,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
   // Y-axis label
   graph
     .append('text')
-    .attr('transform', `translate(${-40}, ${plotHeight / 2}) rotate(-90)`)
+    .attr('transform', `translate(${-40}, ${zeroY}) rotate(-90)`)
     .attr('text-anchor', 'middle')
     .attr('font-size', 12)
     .attr('font-weight', 'bold')
@@ -192,7 +195,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .attr('class', 'hand-point')
     .attr('cx', (d) => graphSpace.xScale(d.size))
     .attr('cy', (d) => graphSpace.yScale(d.hand))
-    .attr('r', 4)
+    .attr('r', (d) => (d.size === selectSize)? 6 : 4)
     .attr('fill', handVecColor);
 
   graph
@@ -203,7 +206,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
     .attr('class', 'auto-point')
     .attr('cx', (d) => graphSpace.xScale(d.size))
     .attr('cy', (d) => graphSpace.yScale(d.auto))
-    .attr('r', 4)
+    .attr('r', (d) => (d.size === selectSize)? 6 : 4)
     .attr('fill', autoVecColor);
 
   // Nearest data point tooltip highlight line

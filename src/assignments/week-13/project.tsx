@@ -191,7 +191,7 @@ export function week13ProjectStage() {
   }, [svg_dim, data]);
 
   const LineGraphSpace: LineGraphSpace = useMemo(() => {
-    const margin = { top: 50, right: 5, bottom: 50, left: 60 };
+    const margin = { top: 50, right: 15, bottom: 50, left: 70 };
     if (selectEntry === null) {
       const default_scale = scaleLinear()
         .domain([0, 1])
@@ -215,9 +215,10 @@ export function week13ProjectStage() {
     var maxSize = (d3.max(selectEntry.data, (d) => d.size) ?? 0);
     var minSize = (d3.min(selectEntry.data, (d) => d.size) ?? 0);
 
-    const xScale = scaleLinear()
+    const xScale = scaleLog()
       .domain([minSize, maxSize])
-      .range([0, svg_dim.width - margin.right - margin.left]);
+      .range([0, svg_dim.width - margin.right - margin.left])
+      .base(2);
 
     return {
       dimensions: svg_dim,
@@ -239,9 +240,6 @@ export function week13ProjectStage() {
       .domain([-maxAbsY, maxAbsY])
       .range([svg_dim.height - margin.top - margin.left, 0]);
 
-    // const xScale = scaleLinear()
-    //   .domain([minSize, maxSize])
-    //   .range([0, svg_dim.width - margin.right - margin.left]);
     const xScale = scaleLog()
       .domain([minSize, maxSize])
       .range([0, svg_dim.width - margin.right - margin.left])
@@ -329,7 +327,7 @@ export function week13ProjectStage() {
       .map(([size, values]) => ({
         size,
         hand: d3.mean(values.hand) ?? 0,
-        auto: -(d3.mean(values.auto) ?? 0),
+        auto: (d3.mean(values.auto) ?? 0),
       }))
       .sort((a, b) => a.size - b.size);
     LineGraph(svg, points, LineGraphSpace, selectSize, config, setLineToolTip);
@@ -343,8 +341,25 @@ export function week13ProjectStage() {
     if (Object.keys(comparisonSeries).length === 0) return;
     
     const selectSize = (lineToolTip)? lineToolTip.size : 20;
-    MultiOpLineGraph(svg, comparisonSeries, compareLineGraphSpace, selectSize, selectOp, config, (toolTip, op) => {setLineToolTip(toolTip), setSelectOp(op)});
-  }, [compareMode, workingPath, comparisonSeries, compareLineGraphSpace, lineToolTip, config]);
+    MultiOpLineGraph(
+      svg,
+      comparisonSeries,
+      compareLineGraphSpace,
+      selectSize,
+      selectOp,
+      config,
+      (toolTip, op) => {
+        setLineToolTip(toolTip);
+        setSelectOp(op);
+      },
+      (operation) => {
+        setWorkingPath((prevPath) => {
+          if (prevPath.length === 2) return [prevPath[0], prevPath[1], operation];
+          return prevPath;
+        });
+      },
+    );
+  }, [compareMode, workingPath, comparisonSeries, compareLineGraphSpace, lineToolTip, selectOp, config]);
 
   return (
 
@@ -453,9 +468,17 @@ export function week13ProjectStage() {
               }}
             >
               <div><strong>Operation Size:</strong> {lineToolTip.size}</div>
-              <div><strong>Hand Vectorized Speedup:</strong> {lineToolTip.handV.toFixed(2)}x</div>
-              <div><strong>Auto Vectorized Speedup:</strong> {lineToolTip.autoV.toFixed(2)}x</div>
-              <div><strong>*Double Click to Expand*</strong></div>
+              <div><strong>Average Hand Vectorized Speedup:</strong> {lineToolTip.handV.toFixed(2)}x</div>
+              <div><strong>Average Auto Vectorized Speedup:</strong> {lineToolTip.autoV.toFixed(2)}x</div>
+              {compareMode && lineToolTip.operationName && lineToolTip.operationHandV !== undefined && lineToolTip.operationAutoV !== undefined && (
+                <div className="mt-4">
+                  <div><strong>Select Operation: {lineToolTip.operationName}</strong></div>
+                  <div><strong>Hand Speedup:</strong> {lineToolTip.operationHandV.toFixed(2)}x</div>
+                  <div><strong>Auto Speedup:</strong> {lineToolTip.operationAutoV.toFixed(2)}x</div>
+                  <div><strong>*Double Click to Expand*</strong></div>
+                </div>
+              )}
+              
             </div>
           )}
 
