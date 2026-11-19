@@ -15,6 +15,7 @@ export interface GraphColors {
   auto: string;
   handSel: string;
   autoSel: string;
+  multiPallet: string[];
 }
 
 export interface Config {
@@ -50,5 +51,33 @@ export const DARK_MODE_DEFAULT_GRAPH: GraphColors = {
   auto: '#d53600',
   handSel: '#ffa526',
   // handSel: '#feb204',
-  autoSel: '#f2622e'
+  autoSel: '#f2622e',
+  multiPallet: [
+    "#FF5733",
+    "#33FF57",
+    "#3357FF",
+    "#FF33A6",
+    "#FFC300",
+    "#DAF7A6",
+    "#e00f4a",
+    "#900C3F",
+  ],
+};
+
+export const LIGHT_MODE_DEFAULT_GRAPH: GraphColors = {
+  hand: '#ff8503',
+  auto: '#d53600',
+  handSel: '#ffa526',
+  // handSel: '#feb204',
+  autoSel: '#f2622e',
+  multiPallet: [
+    "#274001",
+    "#828a00",
+    "#f29f05",
+    "#f25c05",
+    "#d6568c",
+    "#4d8584",
+    "#a62f03",
+    "#400d01"
+  ],
 };

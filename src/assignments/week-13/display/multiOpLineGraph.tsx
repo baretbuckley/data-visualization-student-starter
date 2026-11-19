@@ -76,7 +76,15 @@ export function MultiOpLineGraph(
   const plotWidth = graphSpace.dimensions.width - graphSpace.margin.left - graphSpace.margin.right;
   const plotHeight = graphSpace.dimensions.height - graphSpace.margin.top - graphSpace.margin.bottom;
 
-  const seriesEntries = Object.entries(points);
+  const colors = config.graphColors.multiPallet;
+
+  const seriesEntries = Object.entries(points).map(
+    (ent, i) => [
+      ent[0], 
+      ent[1],
+      colors[i % colors.length]
+    ] as [string, LineGraphData[], string]
+  );
 
   const xScale = graphSpace.xScale;
   const yScale = graphSpace.yScale;
@@ -213,16 +221,19 @@ export function MultiOpLineGraph(
     .attr('fill', bkgTickColor)
     .text('Speedup vs Scalar');
 
-  const colors = [
-    config.graphColors.hand,
-    config.graphColors.auto,
-    config.graphColors.handSel,
-    config.graphColors.autoSel,
-  ];
 
-  seriesEntries.forEach(([name, series], index) => {
-    const handColor = colors[index % colors.length];
-    const autoColor = colors[(index + 1) % colors.length];
+
+  // Move selected to last if select on
+  if (selectOp) {
+    const found = seriesEntries.find((v) => v[0] == selectOp);
+    if (found) {
+      const idx = seriesEntries.indexOf(found);
+      seriesEntries[idx] = seriesEntries[seriesEntries.length-1];
+      seriesEntries[seriesEntries.length-1] = found;
+    }
+  }
+
+  seriesEntries.forEach(([name, series, color], index) => {
 
     const handLine = d3
       .line<{ size: number; hand: number }>()
@@ -233,25 +244,25 @@ export function MultiOpLineGraph(
     const autoLine = d3
       .line<{ size: number; auto: number }>()
       .x((d) => xScale(d.size))
-      .y((d) => yScale(-d.auto))
+      .y((d) => yScale(d.auto))
       .curve(d3.curveMonotoneX);
 
     graph
       .append('path')
       .datum(series.map((p) => ({ size: p.size, hand: p.hand })))
       .attr('fill', 'none')
-      .attr('stroke', handColor)
-      .attr('stroke-width', (selectOp==name)? 3 : 2)
-      .attr('opacity', (!selectOp)? 0.9 : (selectOp==name)? 1 : 0.3)
+      .attr('stroke', color)
+      .attr('stroke-width', (selectOp==name)? 3.5 : 2)
+      .attr('opacity', (!selectOp)? 0.9 : (selectOp==name)? 1 : 0.2)
       .attr('d', handLine);
 
     graph
       .append('path')
       .datum(series.map((p) => ({ size: p.size, auto: p.auto })))
       .attr('fill', 'none')
-      .attr('stroke', autoColor)
-      .attr('stroke-width', (selectOp==name)? 3 : 2)
-      .attr('opacity',  (!selectOp)? 0.9 : (selectOp==name)? 1 : 0.3)
+      .attr('stroke', color)
+      .attr('stroke-width', (selectOp==name)? 3.5 : 2)
+      .attr('opacity',  (!selectOp)? 0.9 : (selectOp==name)? 1 : 0.2)
       .attr('d', autoLine);
 
     graph
@@ -262,7 +273,7 @@ export function MultiOpLineGraph(
       .attr('cx', (d) => xScale(d.size))
       .attr('cy', (d) => yScale(d.hand))
       .attr('r', 2.5)
-      .attr('fill', handColor)
+      .attr('fill', color)
       .attr('opacity', 0.7);
 
     graph
@@ -274,7 +285,7 @@ export function MultiOpLineGraph(
       .attr('cx', (d) => xScale(d.size))
       .attr('cy', (d) => yScale(d.auto))
       .attr('r', 2.5)
-      .attr('fill', autoColor)
+      .attr('fill', color)
       .attr('opacity', 0.7);
 
     graph
@@ -283,7 +294,8 @@ export function MultiOpLineGraph(
       .attr('y', 10 + index * 14)
       .attr('text-anchor', 'end')
       .attr('font-size', 10)
-      .attr('fill', handColor)
+      .attr('fill', color)
+      .attr('opacity', (!selectOp)? 1 : (selectOp===name)? 1 : 0.5)
       .text(name);
   });
 
@@ -342,4 +354,5 @@ export function MultiOpLineGraph(
       if (operation) onDblClick(operation);
     })
     .on('mouseleave', () => onHover(null, null));
+
 }

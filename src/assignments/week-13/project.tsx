@@ -11,7 +11,7 @@ import { MultiOpLineGraph } from './display/multiOpLineGraph';
 import type { BarChartSpace, LineGraphSpace, Dimensions } from './graphSpace';
 import { workingPathHeader } from './display/workingPathHeader';
 import { displayHelpMenue, infoButton } from './display/helpMenue';
-import { DARK_MODE, DARK_MODE_DEFAULT_GRAPH, LIGHT_MODE, type Config } from './config';
+import { DARK_MODE, DARK_MODE_DEFAULT_GRAPH, LIGHT_MODE, LIGHT_MODE_DEFAULT_GRAPH, type Config } from './config';
 import { buildComparisonSeries } from './projectComparison';
 import { loadOpClasses } from './projectData';
 
@@ -44,7 +44,7 @@ export function week13ProjectStage() {
   const toggleTheme = () => {
     setConfig((current) => ({
       siteColors: current.siteColors === DARK_MODE ? LIGHT_MODE : DARK_MODE,
-      graphColors: current.graphColors,
+      graphColors: current.siteColors === DARK_MODE ? LIGHT_MODE_DEFAULT_GRAPH : DARK_MODE_DEFAULT_GRAPH,
     }));
   };
 
@@ -209,7 +209,7 @@ export function week13ProjectStage() {
       autoMax = handMax / 3;
     }
     const yScale = scaleLinear()
-      .domain([-(autoMax), (handMax)])
+      .domain([0, (handMax)])
       .range([svg_dim.height - margin.top - margin.left, 0]);
     
     var maxSize = (d3.max(selectEntry.data, (d) => d.size) ?? 0);
@@ -231,13 +231,15 @@ export function week13ProjectStage() {
   const compareLineGraphSpace: LineGraphSpace = useMemo(() => {
     const margin = { top: 50, right: 10, bottom: 50, left: 60 };
     const allValues = Object.values(comparisonSeries).flatMap((series) => series);
-    const maxAbsY = d3.max(allValues.flatMap((point) => [Math.abs(point.hand), Math.abs(point.auto)])) ?? 1;
+    const maxAbsAuto = d3.max(allValues.map((point) =>  Math.abs(point.auto))) ?? 1;
+    const maxAbsHand = d3.max(allValues.map((point) =>  Math.abs(point.hand))) ?? 1;
+    // const maxAbsY = d3.max(allValues.flatMap((point) => [Math.abs(point.hand), Math.abs(point.auto)])) ?? 1;
     
     const maxSize = d3.max(allValues, (point) => point.size) ?? 1;
     const minSize = d3.min(allValues, (point) => point.size) ?? 0;
 
     const yScale = scaleLinear()
-      .domain([-maxAbsY, maxAbsY])
+      .domain([-maxAbsAuto, maxAbsHand])
       .range([svg_dim.height - margin.top - margin.left, 0]);
 
     const xScale = scaleLog()
@@ -376,7 +378,7 @@ export function week13ProjectStage() {
         style={{background:config.siteColors.header, color:config.siteColors.text}}
         >
           <header className="w8-header p-2">
-            <h1 className="text-2xl">Performance Ratio of Hand- and Auto-Vectorized Against Scalar Code</h1>
+            <p className="text-2xl">Performance Ratio of Hand- and Auto-Vectorized Against Scalar Code</p>
             <p className="w8-eyebrow">Comparison of Vectorization on the Eigen Library Benchmark</p>
           </header>
 
