@@ -10,6 +10,7 @@ import { ProjectIteration } from './week-08/project';
 import { ProjectAddedInteraction } from './week-10/project';
 import { ProjectSecondAddedInteraction } from './week-11/project';
 import { App as Week12Project } from './week-12/App.jsx';
+import { week13ProjectStage } from './week-13/project';
 
 export interface Assignment {
   id: string;
@@ -72,6 +73,11 @@ export const assignments: Assignment[] = [
     id: '12',
     name: 'Week 12',
     component: Week12Project,
+  },
+  {
+    id: '13',
+    name: 'Week 13',
+    component: week13ProjectStage,
   },
 ];
 
