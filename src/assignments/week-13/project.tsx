@@ -205,11 +205,8 @@ export function week13ProjectStage() {
     }
     var handMax = (d3.max(selectEntry.data, (d) =>d.result.handVect) ?? 0);
     var autoMax = (d3.max(selectEntry.data, (d) => d.result.autoVect) ?? 0);
-    if (autoMax < handMax / 3) {
-      autoMax = handMax / 3;
-    }
     const yScale = scaleLinear()
-      .domain([0, (handMax)])
+      .domain([0, Math.max(handMax, autoMax)])
       .range([svg_dim.height - margin.top - margin.left, 0]);
     
     var maxSize = (d3.max(selectEntry.data, (d) => d.size) ?? 0);
@@ -394,9 +391,9 @@ export function week13ProjectStage() {
               <button
                 type="button"
                 onClick={() => setCompareMode((current) => !current)}
-                className="rounded px-3 py-1.5 text-sm font-medium transition-opacity hover:opacity-90"
+                className="rounded px-3 py-1.5 text-sm font-medium transition-opacity hover:opacity-80"
                 style={{
-                  background: compareMode ? config.graphColors.hand : config.siteColors.subHeader,
+                  background: compareMode ? config.graphColors.auto : config.graphColors.hand,
                   color: config.siteColors.text,
                   border: `1px solid ${config.siteColors.surfaceSecondary}`,
                   cursor: 'pointer',
@@ -406,6 +403,7 @@ export function week13ProjectStage() {
                 {compareMode ? 'Hide comparison' : 'Compare operations'}
               </button>
             )}
+
             <button
               type="button"
               onClick={toggleTheme}
@@ -420,6 +418,7 @@ export function week13ProjectStage() {
             >
               {config.siteColors === DARK_MODE ? 'Light mode' : 'Dark mode'}
             </button>
+
             {infoButton(45, helpMenuePressed, () => {setHelpMenuePressed(!helpMenuePressed)}, config)}
           </div>
         </div>

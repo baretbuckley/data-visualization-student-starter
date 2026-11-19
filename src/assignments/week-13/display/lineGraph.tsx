@@ -130,7 +130,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
   // Y-axis label
   graph
     .append('text')
-    .attr('transform', `translate(${-40}, ${zeroY}) rotate(-90)`)
+    .attr('transform', `translate(${-40}, ${plotHeight/2}) rotate(-90)`)
     .attr('text-anchor', 'middle')
     .attr('font-size', 12)
     .attr('font-weight', 'bold')
@@ -247,7 +247,7 @@ export function LineGraph(svg: SVGSVGElement | null, points: LineGraphData[], gr
         setToolTip({
           size: closest.size,
           handV: closest.hand,
-          autoV: -closest.auto,
+          autoV: closest.auto,
         });
       }
     });

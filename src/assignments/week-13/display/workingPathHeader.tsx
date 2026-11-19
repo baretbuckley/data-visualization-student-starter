@@ -6,15 +6,16 @@ export function workingPathHeader(path: string[], setPath: (path: string[])=>voi
   return (
     <div 
     className="flex shrink-0 flex-row gap-0 bg-gray-300 p-0 text-left font-bold w-full"
-    style={{background:config.siteColors.subHeader}}
+    style={{background:config.siteColors.subHeader, color:config.siteColors.text}}
     >
       <div key="All" className="flex flex-row gap-1">
         <button
-          className="px-2 py-1 text-sm font-bold hover:bg-gray-400"
-          style={{borderLeft: "solid", background:config.siteColors.subHeader, cursor: "pointer"}}
+          className="px-2 py-1 text-sm font-bold hover:opacity-70"
+          style={{borderRight: "solid", background:config.siteColors.subHeader, cursor: "pointer"}}
           onClick={() => {
             setPath([]);
           }}
+          // onMouseOver={}
         >
           {"All"}
         </button>
@@ -23,8 +24,8 @@ export function workingPathHeader(path: string[], setPath: (path: string[])=>voi
       {path.map((p, index) => (
         <div key={index} className="flex flex-row gap-0">
           <button
-            className="px-2 py-1 text-sm font-bold hover:bg-gray-400"
-            style={{borderLeft: "solid", background:config.siteColors.subHeader, cursor: "pointer"}}
+            className="px-2 py-1 text-sm font-bold hover:opacity-70"
+            style={{borderRight: "solid", background:config.siteColors.subHeader, cursor: "pointer"}}
             onClick={() => {
               setPath(path.slice(0, index + 1));
             }}
